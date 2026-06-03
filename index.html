@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>A股分析工具箱</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;color:#fff;font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:0}
+    .header{background:linear-gradient(145deg,rgba(255,107,107,0.2),rgba(254,202,87,0.1));padding:32px 16px;text-align:center;border-radius:0 0 40px 40px}
+    .header .logo{font-size:3rem;margin-bottom:12px}
+    .header h1{font-size:1.8rem;font-weight:700;background:linear-gradient(90deg,#ff6b6b,#feca57);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .header .desc{font-size:.9rem;color:#8b949e}
+    .header .date{font-size:.8rem;color:#ffc107;margin-top:8px}
+
+    .section{margin:24px 16px}
+    .section-title{font-size:1rem;font-weight:600;color:#feca57;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .section-title::before{content:'';width:4px;height:20px;background:linear-gradient(180deg,#ff6b6b,#feca57);border-radius:2px}
+
+    .page-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .page-card{background:linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02));backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;text-decoration:none;transition:all 0.3s;display:block}
+    .page-card:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(255,107,107,0.2);border-color:rgba(255,107,107,0.3)}
+    .page-card .title{font-size:.95rem;font-weight:600;color:#fff;margin-bottom:6px}
+    .page-card .desc{font-size:.72rem;color:#8b949e;line-height:1.4}
+    .page-card .icon{font-size:1.5rem;margin-bottom:8px}
+
+    .page-card.blue{background:linear-gradient(145deg,rgba(88,166,255,0.15),rgba(88,166,255,0.05));border-color:rgba(88,166,255,0.2)}
+    .page-card.blue:hover{border-color:rgba(88,166,255,0.4)}
+    .page-card.green{background:linear-gradient(145deg,rgba(63,185,80,0.15),rgba(63,185,80,0.05));border-color:rgba(63,185,80,0.2)}
+    .page-card.green:hover{border-color:rgba(63,185,80,0.4)}
+    .page-card.orange{background:linear-gradient(145deg,rgba(240,136,62,0.15),rgba(240,136,62,0.05));border-color:rgba(240,136,62,0.2)}
+    .page-card.orange:hover{border-color:rgba(240,136,62,0.4)}
+    .page-card.purple{background:linear-gradient(145deg,rgba(168,85,247,0.15),rgba(168,85,247,0.05));border-color:rgba(168,85,247,0.2)}
+    .page-card.purple:hover{border-color:rgba(168,85,247,0.4)}
+
+    .footer{background:rgba(0,0,0,0.3);padding:24px;text-align:center;margin-top:32px}
+    .footer .copy{font-size:.75rem;color:#636e72}
+    .footer .update{font-size:.7rem;color:#8b949e;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">📈</div>
+    <h1>A股分析工具箱</h1>
+    <p class="desc">缠论分析 · 策略回测 · 情绪监控</p>
+    <p class="date" id="current-time"></p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 缠论分析</div>
+    <div class="page-grid">
+      <a class="page-card blue" href="chan-intraday.html">
+        <div class="icon">🔮</div>
+        <div class="title">单个股票缠论</div>
+        <div class="desc">30分钟走势与买卖点</div>
+      </a>
+      <a class="page-card blue" href="chan-multi-monitor.html">
+        <div class="icon">📡</div>
+        <div class="title">缠论多股监控</div>
+        <div class="desc">多标的交易操作列表</div>
+      </a>
+      <a class="page-card blue" href="chan-review.html">
+        <div class="icon">📈</div>
+        <div class="title">缠论复盘</div>
+        <div class="desc">上证指数大盘分析</div>
+      </a>
+      <a class="page-card blue" href="review.html">
+        <div class="icon">⚡</div>
+        <div class="title">动态缠论复盘</div>
+        <div class="desc">全动态真实数据</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎯 策略回测</div>
+    <div class="page-grid">
+      <a class="page-card green" href="10-day-line.html">
+        <div class="icon">📉</div>
+        <div class="title">日K十日线策略</div>
+        <div class="desc">十日线策略回测分析</div>
+      </a>
+      <a class="page-card green" href="30minM20Strategy.html">
+        <div class="icon">⏱️</div>
+        <div class="title">30分钟M20策略</div>
+        <div class="desc">分钟级M20回测</div>
+      </a>
+      <a class="page-card green" href="simple5MinM20Strategy.html">
+        <div class="icon">📊</div>
+        <div class="title">M20策略对比</div>
+        <div class="desc">5分钟策略对比分析</div>
+      </a>
+      <a class="page-card green" href="test-fund.html">
+        <div class="icon">💰</div>
+        <div class="title">基金策略回测</div>
+        <div class="desc">测试交易策略页面</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📰 市场情绪</div>
+    <div class="page-grid">
+      <a class="page-card orange" href="multi-report.html">
+        <div class="icon">🌡️</div>
+        <div class="title">多指数恐贪对比</div>
+        <div class="desc">主要指数情绪对照</div>
+      </a>
+      <a class="page-card orange" href="etf-screening-report.html">
+        <div class="icon">📋</div>
+        <div class="title">ETF筛选报告</div>
+        <div class="desc">ETF候选池筛选</div>
+      </a>
+      <a class="page-card orange" href="trading-report.html">
+        <div class="icon">📑</div>
+        <div class="title">交易策略分析</div>
+        <div class="desc">策略信号与分析报告</div>
+      </a>
+      <a class="page-card orange" href="douyin-review.html">
+        <div class="icon">🎬</div>
+        <div class="title">抖音复盘</div>
+        <div class="desc">每日缠论分析报告</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💵 资金管理</div>
+    <div class="page-grid">
+      <a class="page-card purple" href="test-money.html">
+        <div class="icon">💼</div>
+        <div class="title">资金配置</div>
+        <div class="desc">资金配置回测页面</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p class="copy">A股分析工具箱 © 2026</p>
+    <p class="update">每日自动更新 · 数据来源：新浪财经</p>
+  </div>
+
+  <script>
+    document.getElementById('current-time').textContent = new Date().toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long'
+    });
+
+    document.querySelectorAll('.page-card').forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        card.style.transition = 'all 0.4s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, index * 60);
+    });
+  </script>
+</body>
+</html>

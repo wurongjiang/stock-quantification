@@ -1,0 +1,1491 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>30分钟M20策略回测系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="src/notificationService.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+      }
+
+      .overview {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+
+      .overview h2 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      .overview ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .overview li {
+        padding: 5px 0;
+        color: #555;
+      }
+
+      .table-container {
+        margin-bottom: 30px;
+      }
+
+      .table-container h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .green {
+        color: #27ae60;
+        font-weight: 600;
+      }
+
+      .red {
+        color: #e74c3c;
+        font-weight: 600;
+      }
+
+      .chart-container {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .chart-container h3 {
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+
+      .chart-wrapper {
+        position: relative;
+        height: 400px;
+        margin-top: 20px;
+      }
+
+      .status-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .status-label {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .status-value {
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+
+      .status-up {
+        color: #155724;
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-down {
+        color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+      }
+
+      .trades-container {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .trades-container h3 {
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+      }
+
+      .trades-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      .trades-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .trades-table td {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .trades-table tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .buy-row {
+        background-color: rgba(40, 167, 69, 0.1);
+      }
+
+      .sell-row {
+        background-color: rgba(220, 53, 69, 0.1);
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #7f8c8d;
+        font-size: 14px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 50px;
+        font-size: 18px;
+        color: #7f8c8d;
+      }
+
+      .position-info {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .alert {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>30分钟M20策略回测系统</h1>
+      <p style="text-align: center; color: #7f8c8d">
+        生成时间:
+        <span id="current-time"></span>
+      </p>
+
+      <div class="overview">
+        <h2>策略概览</h2>
+        <ul>
+          <li>
+            策略规则：严格按照20日均线，在30分钟的M20站上就买入仓位，跌破30分钟的M20就卖出仓位。跌破日20均线必须空仓。
+          </li>
+          <li>初始资金：100000元</li>
+          <li>仓位管理：低位3020上，仓位可放大到5层；高位3020上，仓位必须低于两层</li>
+          <li>风险控制：20日均线作为支撑，跌破必须清仓，跌破20日均线时提示</li>
+          <li>
+            回测期间：
+            <span id="backtest-period"></span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="table-container">
+        <h2>回测结果</h2>
+        <table id="backtest-results">
+          <thead>
+            <tr>
+              <th>指数</th>
+              <th>初始资金</th>
+              <th>最终价值</th>
+              <th>收益率</th>
+              <th>交易次数</th>
+              <th>当前持仓</th>
+              <th>仓位层数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 结果将通过JavaScript动态填充 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 图表和交易记录将通过JavaScript动态生成 -->
+
+      <div class="footer">
+        <p>30分钟M20策略回测系统 © 2026</p>
+        <p>页面将每30分钟自动刷新一次</p>
+      </div>
+    </div>
+
+    <script>
+      // 指数配置
+      const INDICES = [
+        { symbol: 'sh000001', name: '上证指数' },
+        // { symbol: 'sh000300', name: '沪深300' },
+        // { symbol: 'sh000905', name: '中证500' },
+        // { symbol: 'sh000688', name: '科创50' },
+        // { symbol: 'sh518680', name: '金', isT0: true },
+      ]
+
+      // 记录每个指数上一次的通知类型
+      const lastNotificationType = new Map()
+
+      // 记录是否已经显示过通知
+      let hasShownNotification = false
+
+      const STRATEGY_PARAMS = {
+        INITIAL_CASH: 100000,
+        M20_PERIOD: 20,
+        MAX_POSITIONS: 5, // 最多同时持有5支票
+        MAX_LOW_POSITION: 8, // 低位最大仓位层数（增加到8层）
+        MAX_HIGH_POSITION: 1, // 高位最大仓位层数（必须低于两层）
+        LAYER_AMOUNT: 10000, // 每层仓位金额
+        STOP_LOSS_PERCENT: 0.05, // 止损百分比
+        TAKE_PROFIT_PERCENT: 0.15, // 止盈百分比
+      }
+
+      // 全局持仓管理
+      let globalPositions = new Map() // 记录当前持有哪些票
+
+      // 初始化通知服务配置
+      NotificationService.setConfig({
+        strategyName: '3020策略',
+      })
+
+      // 数据获取函数 - 30分钟数据
+      async function fetchMinuteData(symbol) {
+        try {
+          // 通过Node.js服务器代理获取数据，避免跨域问题
+          const url = `/api/cn/api/json_v2.php/CN_MarketDataService.getKLineData?symbol=${symbol}&scale=30&datalen=360`
+          const response = await fetch(url)
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+
+          const data = await response.json()
+          return data.map((item) => ({
+            time: item.day,
+            price: parseFloat(item.close),
+          }))
+        } catch (error) {
+          console.error(`获取${symbol}分时数据失败:`, error)
+          // 提供模拟数据，以便在本地测试时也能看到效果
+          return generateMockData(symbol)
+        }
+      }
+
+      // 数据获取函数 - 5分钟数据
+      async function fetchFiveMinuteData(symbol) {
+        try {
+          // 通过Node.js服务器代理获取数据，避免跨域问题
+          const url = `/api/cn/api/json_v2.php/CN_MarketDataService.getKLineData?symbol=${symbol}&scale=5&datalen=1970`
+          const response = await fetch(url)
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+
+          const data = await response.json()
+          return data.map((item) => ({
+            time: item.day,
+            price: parseFloat(item.close),
+          }))
+        } catch (error) {
+          console.error(`获取${symbol}5分钟数据失败:`, error)
+          // 返回空数组
+          return []
+        }
+      }
+
+      // 获取日线数据，用于计算20日均线
+      async function fetchDailyData(symbol) {
+        try {
+          // 通过Node.js服务器代理获取数据，避免跨域问题
+          const url = `/api/cn/api/json_v2.php/CN_MarketDataService.getKLineData?symbol=${symbol}&scale=240&datalen=1023`
+          const response = await fetch(url)
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+
+          const data = await response.json()
+          const formattedData = data.map((item) => ({
+            time: item.day,
+            price: parseFloat(item.close),
+          }))
+
+          // 按日期排序，确保数据是从旧到新的顺序
+          formattedData.sort((a, b) => new Date(a.time) - new Date(b.time))
+
+          return formattedData
+        } catch (error) {
+          console.error(`获取${symbol}日线数据失败:`, error)
+          // 提供模拟数据
+          const mockData = generateMockDailyData(symbol)
+          // 按日期排序，确保数据是从旧到新的顺序
+          mockData.sort((a, b) => new Date(a.time) - new Date(b.time))
+          return mockData
+        }
+      }
+
+      // 生成模拟数据，用于本地测试
+      function generateMockData(symbol) {
+        const mockData = []
+        const now = new Date()
+        let basePrice = symbol === 'sh000001' ? 4000 : 4600
+
+        for (let i = 2879; i >= 0; i--) {
+          const time = new Date(now.getTime() - i * 30 * 60 * 1000)
+          const timeStr = time.toISOString().replace('T', ' ').substring(0, 19)
+          // 生成随机价格波动
+          const change = (Math.random() - 0.5) * 10
+          basePrice += change
+          mockData.push({
+            time: timeStr,
+            price: parseFloat(basePrice.toFixed(2)),
+          })
+        }
+
+        return mockData
+      }
+
+      // 生成模拟日线数据
+      function generateMockDailyData(symbol) {
+        const mockData = []
+        const now = new Date()
+        let basePrice = symbol === 'sh000001' ? 4000 : 4600
+
+        for (let i = 29; i >= 0; i--) {
+          const time = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+          const timeStr = time.toISOString().substring(0, 10)
+          // 生成随机价格波动
+          const change = (Math.random() - 0.5) * 20
+          basePrice += change
+          mockData.push({
+            time: timeStr,
+            price: parseFloat(basePrice.toFixed(2)),
+          })
+        }
+
+        return mockData
+      }
+
+      // 计算M20
+      function calculateM20(data) {
+        const m20Data = []
+        for (let i = 19; i < data.length; i++) {
+          const sum = data.slice(i - 19, i + 1).reduce((acc, item) => acc + item.price, 0)
+          m20Data.push(sum / 20)
+        }
+        return m20Data
+      }
+
+      // 计算5分钟M20
+      function calculateFiveMinuteM20(fiveMinuteData) {
+        const fiveMinuteM20Data = []
+
+        if (fiveMinuteData.length < 20) {
+          return fiveMinuteM20Data
+        }
+
+        // 计算5分钟M20
+        for (let i = 19; i < fiveMinuteData.length; i++) {
+          const sum = fiveMinuteData.slice(i - 19, i + 1).reduce((acc, item) => acc + item.price, 0)
+          fiveMinuteM20Data.push({
+            time: fiveMinuteData[i].time,
+            m20: sum / 20,
+          })
+        }
+
+        return fiveMinuteM20Data
+      }
+
+      // 计算20日均线
+      function calculateDailyM20(data, currentDate) {
+        if (data.length < 60) {
+          return { m20: null, high: null, recent20M20s: [] }
+        }
+
+        // 过滤出截止到当前日期的数据
+        const filteredData = data.filter((item) => item.time <= currentDate)
+
+        if (filteredData.length < 60) {
+          return { m20: null, high: null, recent20M20s: [] }
+        }
+
+        // 计算最近60天每天的20日均线
+        const recent60Data = filteredData.slice(-60)
+        const recent20M20s = []
+
+        for (let i = 19; i < recent60Data.length; i++) {
+          const sum = recent60Data.slice(i - 19, i + 1).reduce((acc, item) => acc + item.price, 0)
+          recent20M20s.push(sum / 20)
+        }
+
+        // 使用最近20天的数据计算平均值
+        const recent20Data = filteredData.slice(-20)
+        const sum = recent20Data.reduce((acc, item) => acc + item.price, 0)
+        const m20 = sum / 20
+
+        // 计算最近60天的最高值
+        const high = Math.max(...recent60Data.map((item) => item.price))
+
+        return { m20, high, recent20M20s }
+      }
+
+      // 判断是高位还是低位
+      function isHighPosition(price, high, recent20M20s) {
+        if (!high || recent20M20s.length < 20) return false
+
+        // 条件1：价格接近最近60天最高值（差值小于5%）
+        const diffPercentage = (high - price) / high
+        const nearHigh = diffPercentage < 0.05
+
+        // 条件2：最近二十个交易日内20日均线一直低于当前价格
+        const allM20BelowPrice = recent20M20s.slice(-20).every((m20) => m20 < price)
+
+        // 满足任一条件则认为是高位
+        return nearHigh || allM20BelowPrice
+      }
+
+      // 回测策略
+      async function backtest30MinM20Strategy(symbol, name, isT0 = false) {
+        console.log(`正在回测 ${name} (${symbol})...`)
+
+        // 获取30分钟数据
+        const minuteData = await fetchMinuteData(symbol)
+        console.log(`✓ ${symbol} 30分钟数据：${minuteData.length} 条`)
+
+        // 获取5分钟数据
+        const fiveMinuteData = await fetchFiveMinuteData(symbol)
+        console.log(`✓ ${symbol} 5分钟数据：${fiveMinuteData.length} 条`)
+
+        // 获取日线数据
+        const dailyData = await fetchDailyData(symbol)
+        console.log(`✓ ${symbol} 日线数据：${dailyData.length} 条`)
+
+        if (minuteData.length < 20) {
+          throw new Error('30分钟数据不足20条，无法计算M20')
+        }
+
+        // 计算30分钟M20
+        const m20Data = calculateM20(minuteData)
+
+        // 计算5分钟M20
+        const fiveMinuteM20Data = calculateFiveMinuteM20(fiveMinuteData)
+
+        // 回测参数
+        let cash = STRATEGY_PARAMS.INITIAL_CASH
+        let shares = 0
+        let totalValue = cash
+        let trades = []
+        let positionHistory = []
+        let lastAboveM20 = false
+        let sharePurchaseDates = [] // 记录每一股的买入日期，用于T+1
+        let sellSignal = false // 记录卖出信号，用于T+1
+        let currentDate = null // 当前日期
+        let currentDailyM20 = null // 当前20日均线
+        let currentDailyHigh = null // 当前最近60天最高值
+        let currentRecent20M20s = [] // 当前最近20天的20日均线值
+        let averageBuyPrice = 0 // 平均买入价格
+
+        // 模拟交易
+        for (let i = 19; i < minuteData.length; i++) {
+          const data = minuteData[i]
+          const time = data.time
+          const price = data.price
+          const m20Value = m20Data[i - 19]
+
+          const currentAboveM20 = price > m20Value
+
+          // 检查日期是否变化
+          const tradeDate = time.split(' ')[0]
+          if (tradeDate !== currentDate) {
+            currentDate = tradeDate
+            // 重新计算20日均线、最近60天最高值和最近20天的20日均线值
+            const dailyResult = calculateDailyM20(dailyData, currentDate)
+            currentDailyM20 = dailyResult.m20
+            currentDailyHigh = dailyResult.high
+            currentRecent20M20s = dailyResult.recent20M20s
+            console.log(
+              `  ${time} 更新20日均线：${currentDailyM20?.toFixed(2) || 'N/A'}, 最近60天最高：${currentDailyHigh?.toFixed(2) || 'N/A'}`,
+            )
+          }
+
+          // 检查是否站在20日均线上方
+          const aboveDailyM20 = currentDailyM20 ? price > currentDailyM20 : false
+
+          // 检查是否是第二天开盘时间（9:35），如果有卖出信号或者价格低于M20，执行卖出操作
+          const isMarketOpen = time.includes(' 09:35:00')
+          if (isMarketOpen && shares > 0 && (sellSignal || !currentAboveM20)) {
+            // T0产品直接卖出，不需要检查T+1条件
+            if (isT0) {
+              const sellShares = shares
+              cash += sellShares * price
+              shares = 0
+              sharePurchaseDates = [] // 清空买入日期记录
+              const newTotalValue = cash + shares * price
+              trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+              console.log(`  ${time} 卖出 ${price} (T0，开盘执行)`)
+              // 从全局持仓中移除
+              globalPositions.delete(symbol)
+              sellSignal = false // 清除卖出信号
+            } else {
+              // 检查是否满足T+1条件（只看日期，不看时间）
+              const sellDate = new Date(time)
+              const sellDateStr = sellDate.toISOString().split('T')[0]
+              let sellableShares = 0
+
+              // 计算可卖出的股数（满足T+1条件）
+              for (let j = 0; j < sharePurchaseDates.length; j++) {
+                const buyDateStr = sharePurchaseDates[j]
+                if (buyDateStr < sellDateStr) {
+                  sellableShares++
+                }
+              }
+
+              if (sellableShares > 0) {
+                const sellShares = Math.min(sellableShares, shares) // 卖出可卖出的股数
+                cash += sellShares * price
+                shares -= sellShares
+                // 移除已卖出的股数的买入日期记录
+                sharePurchaseDates.splice(0, sellShares)
+                const newTotalValue = cash + shares * price
+                trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                console.log(`  ${time} 卖出 ${price} (T+1满足，开盘执行)`)
+
+                // 只有在全部卖出时才清除卖出信号
+                if (shares === 0) {
+                  sellSignal = false // 清除卖出信号
+                  // 从全局持仓中移除
+                  globalPositions.delete(symbol)
+                }
+              }
+            }
+          }
+
+          // 检查止损止盈
+          if (shares > 0 && averageBuyPrice > 0) {
+            const profitPercent = (price - averageBuyPrice) / averageBuyPrice
+
+            // 止损
+            if (profitPercent <= -STRATEGY_PARAMS.STOP_LOSS_PERCENT) {
+              console.log(`  ${time} 触发止损，亏损 ${(profitPercent * 100).toFixed(2)}%`)
+
+              // T0产品直接卖出，不需要检查T+1条件
+              if (isT0) {
+                const sellShares = shares
+                cash += sellShares * price
+                shares = 0
+                sharePurchaseDates = [] // 清空买入日期记录
+                averageBuyPrice = 0
+                const newTotalValue = cash + shares * price
+                trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                console.log(`  ${time} 卖出 ${price} (T0，止损)`)
+              } else {
+                // 检查是否满足T+1条件（只看日期，不看时间）
+                const sellDate = new Date(time)
+                const sellDateStr = sellDate.toISOString().split('T')[0]
+                let sellableShares = 0
+
+                // 计算可卖出的股数（满足T+1条件）
+                for (let j = 0; j < sharePurchaseDates.length; j++) {
+                  const buyDateStr = sharePurchaseDates[j]
+                  if (buyDateStr < sellDateStr) {
+                    sellableShares++
+                  }
+                }
+
+                if (sellableShares > 0) {
+                  const sellShares = Math.min(sellableShares, shares) // 卖出可卖出的股数
+                  cash += sellShares * price
+                  shares -= sellShares
+                  // 移除已卖出的股数的买入日期记录
+                  sharePurchaseDates.splice(0, sellShares)
+                  // 更新平均买入价格
+                  if (shares === 0) {
+                    averageBuyPrice = 0
+                  } else {
+                    // 简单处理，实际应该按加权平均计算
+                    averageBuyPrice = price
+                  }
+                  const newTotalValue = cash + shares * price
+                  trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                  console.log(`  ${time} 卖出 ${price} (T+1满足，止损)`)
+
+                  // 如果全部卖出，从全局持仓中移除
+                  if (shares === 0) {
+                    globalPositions.delete(symbol)
+                  }
+                } else {
+                  console.log(`  ${time} 触发止损，但不满足T+1条件，将在第二天开盘卖出`)
+                  sellSignal = true // 记录卖出信号
+
+                  // 发送止损通知
+                  if ('Notification' in window && Notification.permission === 'granted') {
+                    const currentNotificationType = 'stop_loss'
+                    const previousNotificationType = lastNotificationType.get(name)
+                    if (currentNotificationType !== previousNotificationType) {
+                      // 发送微信通知
+                      NotificationService.addNotification(
+                        `${name} 触发止损，将在第二天开盘卖出\n时间：${time}\n价格：¥${price.toFixed(2)}`,
+                        'stop_loss',
+                        symbol,
+                      )
+                      console.log(`${name} 触发止损，将在第二天开盘卖出`)
+                      lastNotificationType.set(name, currentNotificationType)
+                    }
+                  }
+                }
+              }
+            }
+
+            // 止盈
+            if (profitPercent >= STRATEGY_PARAMS.TAKE_PROFIT_PERCENT) {
+              console.log(`  ${time} 触发止盈，盈利 ${(profitPercent * 100).toFixed(2)}%`)
+
+              // T0产品直接卖出，不需要检查T+1条件
+              if (isT0) {
+                const sellShares = shares
+                cash += sellShares * price
+                shares = 0
+                sharePurchaseDates = [] // 清空买入日期记录
+                averageBuyPrice = 0
+                const newTotalValue = cash + shares * price
+                trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                console.log(`  ${time} 卖出 ${price} (T0，止盈)`)
+                // 从全局持仓中移除
+                globalPositions.delete(symbol)
+
+                // 发送止盈通知
+                if ('Notification' in window && Notification.permission === 'granted') {
+                  const currentNotificationType = 'take_profit'
+                  const previousNotificationType = lastNotificationType.get(name)
+                  if (currentNotificationType !== previousNotificationType) {
+                    // 发送微信通知
+                    NotificationService.addNotification(
+                      `${name} 触发止盈，盈利 ${(profitPercent * 100).toFixed(2)}%\n时间：${time}\n价格：¥${price.toFixed(2)}`,
+                      'take_profit',
+                      symbol,
+                    )
+                    console.log(`${name} 触发止盈，盈利 ${(profitPercent * 100).toFixed(2)}%`)
+                    lastNotificationType.set(name, currentNotificationType)
+                  }
+                }
+              } else {
+                // 检查是否满足T+1条件（只看日期，不看时间）
+                const sellDate = new Date(time)
+                const sellDateStr = sellDate.toISOString().split('T')[0]
+                let sellableShares = 0
+
+                // 计算可卖出的股数（满足T+1条件）
+                for (let j = 0; j < sharePurchaseDates.length; j++) {
+                  const buyDateStr = sharePurchaseDates[j]
+                  if (buyDateStr < sellDateStr) {
+                    sellableShares++
+                  }
+                }
+
+                if (sellableShares > 0) {
+                  const sellShares = Math.min(sellableShares, shares) // 卖出可卖出的股数
+                  cash += sellShares * price
+                  shares -= sellShares
+                  // 移除已卖出的股数的买入日期记录
+                  sharePurchaseDates.splice(0, sellShares)
+                  // 更新平均买入价格
+                  if (shares === 0) {
+                    averageBuyPrice = 0
+                  } else {
+                    // 简单处理，实际应该按加权平均计算
+                    averageBuyPrice = price
+                  }
+                  const newTotalValue = cash + shares * price
+                  trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                  console.log(`  ${time} 卖出 ${price} (T+1满足，止盈)`)
+
+                  // 发送止盈通知
+                  if ('Notification' in window && Notification.permission === 'granted') {
+                    const currentNotificationType = 'take_profit'
+                    const previousNotificationType = lastNotificationType.get(name)
+                    if (currentNotificationType !== previousNotificationType) {
+                      new Notification('止盈通知', {
+                        body: `${name} 触发止盈，盈利 ${(profitPercent * 100).toFixed(2)}%`,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/25/25211.png',
+                      })
+                      // 发送微信通知
+                      NotificationService.addNotification(
+                        `${name} 触发止盈，盈利 ${(profitPercent * 100).toFixed(2)}%\n时间：${time}\n价格：¥${price.toFixed(2)}`,
+                        'take_profit',
+                        symbol,
+                      )
+                      console.log(`${name} 触发止盈，盈利 ${(profitPercent * 100).toFixed(2)}%`)
+                      lastNotificationType.set(name, currentNotificationType)
+                    }
+                  }
+
+                  // 如果全部卖出，从全局持仓中移除
+                  if (shares === 0) {
+                    globalPositions.delete(symbol)
+                  }
+                } else {
+                  console.log(`  ${time} 触发止盈，但不满足T+1条件，将在第二天开盘卖出`)
+                  sellSignal = true // 记录卖出信号
+
+                  // 发送止盈通知
+                  if ('Notification' in window && Notification.permission === 'granted') {
+                    const currentNotificationType = 'take_profit'
+                    const previousNotificationType = lastNotificationType.get(name)
+                    if (currentNotificationType !== previousNotificationType) {
+                      // 发送微信通知
+                      NotificationService.addNotification(
+                        `${name} 触发止盈，将在第二天开盘卖出\n时间：${time}\n价格：¥${price.toFixed(2)}`,
+                        'take_profit',
+                        symbol,
+                      )
+                      console.log(`${name} 触发止盈，将在第二天开盘卖出`)
+                      lastNotificationType.set(name, currentNotificationType)
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // 交易信号
+          // 只要价格站在30分钟M20上方，就买入仓位（如果还没满仓）
+          if (currentAboveM20) {
+            // 检查是否站在20日均线上方
+            if (aboveDailyM20) {
+              // 检查是否已经持有超过5支票
+              if (globalPositions.size >= STRATEGY_PARAMS.MAX_POSITIONS && !globalPositions.has(symbol)) {
+                console.log(`  ${time} 持有票数量已达上限，跳过买入`)
+              } else {
+                // 计算仓位层数
+                let maxLayers = STRATEGY_PARAMS.MAX_LOW_POSITION
+                if (isHighPosition(price, currentDailyHigh, currentRecent20M20s)) {
+                  maxLayers = STRATEGY_PARAMS.MAX_HIGH_POSITION
+                }
+
+                // 计算当前仓位层数
+                const currentLayers = Math.floor((shares * price) / STRATEGY_PARAMS.LAYER_AMOUNT)
+
+                if (currentLayers < maxLayers) {
+                  // 计算可买入的层数
+                  const buyLayers = maxLayers - currentLayers
+                  const buyAmount = buyLayers * STRATEGY_PARAMS.LAYER_AMOUNT
+                  const buyShares = Math.floor(buyAmount / price)
+
+                  if (buyShares > 0 && cash >= buyShares * price) {
+                    // 更新平均买入价格
+                    if (shares === 0) {
+                      averageBuyPrice = price
+                    } else {
+                      averageBuyPrice = (shares * averageBuyPrice + buyShares * price) / (shares + buyShares)
+                    }
+
+                    cash -= buyShares * price
+                    shares += buyShares
+                    // 记录每一股的买入日期（只记录年月日）
+                    const buyDate = new Date(time)
+                    const buyDateStr = buyDate.toISOString().split('T')[0]
+                    for (let j = 0; j < buyShares; j++) {
+                      sharePurchaseDates.push(buyDateStr)
+                    }
+                    const newTotalValue = cash + shares * price
+                    trades.push({ time, type: 'buy', price, shares: buyShares, cash, totalValue: newTotalValue })
+                    console.log(`  ${time} 买入 ${price} (仓位层数: ${currentLayers + buyLayers}/${maxLayers})`)
+
+                    // 添加到全局持仓
+                    globalPositions.set(symbol, name)
+                  }
+                }
+              }
+            }
+          }
+          // 只要价格跌破30分钟M20，就卖出仓位（如果还有持仓）
+          else if (!currentAboveM20 && shares > 0) {
+            // 检查是否是刚刚跌破（用于记录日志）
+            const justCrossedBelow = lastAboveM20
+            if (justCrossedBelow) {
+              console.log(`  ${time} 跌破30分钟M20，执行卖出操作`)
+            }
+
+            // T0产品直接卖出，不需要检查T+1条件
+            if (isT0) {
+              const sellShares = shares
+              cash += sellShares * price
+              shares = 0
+              sharePurchaseDates = [] // 清空买入日期记录
+              averageBuyPrice = 0
+              const newTotalValue = cash + shares * price
+              trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+              if (justCrossedBelow) {
+                console.log(`  ${time} 卖出 ${price} (T0)`)
+              }
+              // 从全局持仓中移除
+              globalPositions.delete(symbol)
+            } else {
+              // 检查是否满足T+1条件（只看日期，不看时间）
+              const sellDate = new Date(time)
+              const sellDateStr = sellDate.toISOString().split('T')[0]
+              let sellableShares = 0
+
+              // 计算可卖出的股数（满足T+1条件）
+              for (let j = 0; j < sharePurchaseDates.length; j++) {
+                const buyDateStr = sharePurchaseDates[j]
+                if (buyDateStr < sellDateStr) {
+                  sellableShares++
+                }
+              }
+
+              if (sellableShares > 0) {
+                const sellShares = Math.min(sellableShares, shares) // 卖出可卖出的股数
+                cash += sellShares * price
+                shares -= sellShares
+                // 移除已卖出的股数的买入日期记录
+                sharePurchaseDates.splice(0, sellShares)
+                // 更新平均买入价格
+                if (shares === 0) {
+                  averageBuyPrice = 0
+                } else {
+                  // 简单处理，实际应该按加权平均计算
+                  averageBuyPrice = price
+                }
+                const newTotalValue = cash + shares * price
+                trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                if (justCrossedBelow) {
+                  console.log(`  ${time} 卖出 ${price} (T+1满足)`)
+                }
+
+                // 如果全部卖出，从全局持仓中移除
+                if (shares === 0) {
+                  globalPositions.delete(symbol)
+                }
+              } else if (justCrossedBelow) {
+                console.log(`  ${time} 跌破30分钟M20，但不满足T+1条件，将在第二天开盘卖出`)
+                sellSignal = true // 记录卖出信号
+              }
+            }
+          } else if (!aboveDailyM20 && shares > 0) {
+            // 跌破20日均线，必须清仓
+            console.log(`  ${time} 跌破20日均线，必须清仓`)
+
+            // T0产品直接卖出，不需要检查T+1条件
+            if (isT0) {
+              const sellShares = shares
+              cash += sellShares * price
+              shares = 0
+              sharePurchaseDates = [] // 清空买入日期记录
+              averageBuyPrice = 0
+              const newTotalValue = cash + shares * price
+              trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+              console.log(`  ${time} 卖出 ${price} (T0，跌破20日均线)`)
+            } else {
+              // 检查是否满足T+1条件（只看日期，不看时间）
+              const sellDate = new Date(time)
+              const sellDateStr = sellDate.toISOString().split('T')[0]
+              let sellableShares = 0
+
+              // 计算可卖出的股数（满足T+1条件）
+              for (let j = 0; j < sharePurchaseDates.length; j++) {
+                const buyDateStr = sharePurchaseDates[j]
+                if (buyDateStr < sellDateStr) {
+                  sellableShares++
+                }
+              }
+
+              if (sellableShares > 0) {
+                const sellShares = Math.min(sellableShares, shares) // 卖出可卖出的股数
+                cash += sellShares * price
+                shares -= sellShares
+                // 移除已卖出的股数的买入日期记录
+                sharePurchaseDates.splice(0, sellShares)
+                // 更新平均买入价格
+                if (shares === 0) {
+                  averageBuyPrice = 0
+                } else {
+                  // 简单处理，实际应该按加权平均计算
+                  averageBuyPrice = price
+                }
+                const newTotalValue = cash + shares * price
+                trades.push({ time, type: 'sell', price, shares: sellShares, cash, totalValue: newTotalValue })
+                console.log(`  ${time} 卖出 ${price} (T+1满足，跌破20日均线)`)
+
+                // 如果全部卖出，从全局持仓中移除
+                if (shares === 0) {
+                  globalPositions.delete(symbol)
+                }
+              } else {
+                console.log(`  ${time} 跌破20日均线，但不满足T+1条件，将在第二天开盘卖出`)
+                sellSignal = true // 记录卖出信号
+              }
+            }
+          }
+
+          lastAboveM20 = currentAboveM20
+
+          // 更新总价值
+          totalValue = cash + shares * price
+
+          // 找到当前时间对应的5分钟M20值
+          let fiveMinuteM20Value = null
+          if (fiveMinuteM20Data.length > 0) {
+            const currentTime = new Date(time)
+            // 找到最接近的5分钟M20值
+            let closestM20 = null
+            let minDiff = Infinity
+
+            for (const item of fiveMinuteM20Data) {
+              const itemTime = new Date(item.time)
+              const diff = Math.abs(currentTime - itemTime)
+
+              if (diff < minDiff) {
+                minDiff = diff
+                closestM20 = item.m20
+              }
+            }
+
+            fiveMinuteM20Value = closestM20
+          }
+
+          positionHistory.push({
+            time,
+            price,
+            m20: m20Value,
+            totalValue,
+            dailyM20: currentDailyM20,
+            fiveMinuteM20: fiveMinuteM20Value,
+          })
+        }
+
+        const initialCash = STRATEGY_PARAMS.INITIAL_CASH
+        const finalValue = totalValue
+        const returnRate = ((finalValue - initialCash) / initialCash) * 100
+        const startDate = minuteData.length > 0 ? minuteData[0].time.split(' ')[0] : '-'
+        const endDate = minuteData.length > 0 ? minuteData[minuteData.length - 1].time.split(' ')[0] : '-'
+        const currentPosition = shares > 0 ? '是' : '否'
+        const positionLayers = Math.floor(
+          (shares * (positionHistory.length > 0 ? positionHistory[positionHistory.length - 1].price : 0)) /
+            STRATEGY_PARAMS.LAYER_AMOUNT,
+        )
+
+        console.log(`✓ ${name} 回测完成`)
+        console.log(`  初始资金: ${initialCash.toFixed(2)}`)
+        console.log(`  最终价值: ${finalValue.toFixed(2)}`)
+        console.log(`  收益率: ${returnRate.toFixed(2)}%`)
+        console.log(`  交易次数: ${trades.length}`)
+        console.log(`  当前持仓: ${currentPosition}`)
+        console.log(`  仓位层数: ${positionLayers}`)
+
+        return {
+          symbol,
+          name,
+          initialCash,
+          finalValue,
+          returnRate,
+          trades,
+          positionHistory,
+          startDate,
+          endDate,
+          currentPosition,
+          positionLayers,
+        }
+      }
+
+      // 生成报告
+      function generateReport(results) {
+        const validResults = results.filter((r) => !r.error)
+
+        // 更新当前时间
+        const now = new Date()
+        document.getElementById('current-time').textContent = now.toLocaleString()
+
+        // 更新回测期间
+        if (validResults.length > 0) {
+          document.getElementById('backtest-period').textContent =
+            `${validResults[0].startDate} 至 ${validResults[0].endDate}`
+        }
+
+        // 填充回测结果表格
+        const tableBody = document.getElementById('backtest-results').querySelector('tbody')
+        tableBody.innerHTML = ''
+
+        validResults.forEach((r) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td>${r.name}</td>
+          <td>${r.initialCash.toFixed(2)}</td>
+          <td>${r.finalValue.toFixed(2)}</td>
+          <td class="${r.returnRate >= 0 ? 'red' : 'green'}">${r.returnRate.toFixed(2)}%</td>
+          <td>${r.trades.length}</td>
+          <td>${r.currentPosition}</td>
+          <td>${r.positionLayers}</td>
+        `
+          tableBody.appendChild(row)
+        })
+
+        // 生成图表和交易记录
+        const container = document.querySelector('.container')
+        const footer = document.querySelector('.footer')
+
+        // 清除之前的图表和交易记录
+        const existingCharts = container.querySelectorAll('.chart-container, .trades-container')
+        existingCharts.forEach((el) => el.remove())
+
+        // 添加新的图表和交易记录
+        validResults.forEach((r) => {
+          // 30分钟图
+          const minuteChartContainer = document.createElement('div')
+          minuteChartContainer.className = 'chart-container'
+
+          // 计算当前状态
+          let currentStatus30M20 = 'N/A'
+          let currentStatus5M20 = 'N/A'
+          let currentStatusDailyM20 = 'N/A'
+
+          if (r.positionHistory.length > 0) {
+            const lastPosition = r.positionHistory[r.positionHistory.length - 1]
+            const price = lastPosition.price
+            const m20 = lastPosition.m20
+            const fiveMinuteM20 = lastPosition.fiveMinuteM20
+            const dailyM20 = lastPosition.dailyM20
+
+            if (m20) {
+              currentStatus30M20 = price > m20 ? '站上' : '跌破'
+            }
+
+            if (fiveMinuteM20) {
+              currentStatus5M20 = price > fiveMinuteM20 ? '站上' : '跌破'
+            }
+
+            if (dailyM20) {
+              currentStatusDailyM20 = price > dailyM20 ? '站上' : '跌破'
+            }
+          }
+
+          minuteChartContainer.innerHTML = `
+          <h3>${r.name} 30分钟图</h3>
+          <div class="status-container">
+            <div class="status-item">
+              <span class="status-label">30分钟M20状态:</span>
+              <span class="status-value ${currentStatus30M20 === '站上' ? 'status-up' : 'status-down'}">${currentStatus30M20}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">5分钟M20状态:</span>
+              <span class="status-value ${currentStatus5M20 === '站上' ? 'status-up' : 'status-down'}">${currentStatus5M20}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">日M20状态:</span>
+              <span class="status-value ${currentStatusDailyM20 === '站上' ? 'status-up' : 'status-down'}">${currentStatusDailyM20}</span>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="minute-chart-${r.symbol}"></canvas>
+          </div>
+        `
+          container.insertBefore(minuteChartContainer, footer)
+
+          // 交易记录
+          const tradesContainer = document.createElement('div')
+          tradesContainer.className = 'trades-container'
+          tradesContainer.innerHTML = `
+          <h3>${r.name} 交易记录</h3>
+          <div class="table-wrapper">
+            <table class="trades-table">
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>类型</th>
+                  <th>价格</th>
+                  <th>股数</th>
+                  <th>剩余现金</th>
+                  <th>总价值</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${r.trades
+                  .map(
+                    (trade) => `
+                <tr class="${trade.type === 'buy' ? 'buy-row' : 'sell-row'}">
+                  <td>${trade.time}</td>
+                  <td>${trade.type === 'buy' ? '买入' : '卖出'}</td>
+                  <td>${trade.price.toFixed(2)}</td>
+                  <td>${trade.shares}</td>
+                  <td>${trade.cash.toFixed(2)}</td>
+                  <td>${trade.totalValue.toFixed(2)}</td>
+                </tr>
+                `,
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+          </div>
+        `
+          container.insertBefore(tradesContainer, footer)
+
+          // 绘制30分钟图
+          const minuteCtx = document.getElementById(`minute-chart-${r.symbol}`).getContext('2d')
+
+          new Chart(minuteCtx, {
+            type: 'line',
+            data: {
+              labels: r.positionHistory.map((p) => p.time),
+              datasets: [
+                {
+                  label: '价格',
+                  data: r.positionHistory.map((p) => p.price),
+                  borderColor: '#e74c3c',
+                  backgroundColor: 'transparent',
+                  borderWidth: 2,
+                  fill: false,
+                  tension: 0.1,
+                  pointRadius: 0,
+                },
+                {
+                  label: '30分钟M20',
+                  data: r.positionHistory.map((p) => p.m20),
+                  borderColor: '#f39c12',
+                  backgroundColor: 'transparent',
+                  borderWidth: 1,
+                  borderDash: [5, 5],
+                  fill: false,
+                  tension: 0.1,
+                  pointRadius: 0,
+                },
+                {
+                  label: '5分钟M20',
+                  data: r.positionHistory.map((p) => p.fiveMinuteM20),
+                  borderColor: '#9b59b6',
+                  backgroundColor: 'transparent',
+                  borderWidth: 1,
+                  borderDash: [2, 2],
+                  fill: false,
+                  tension: 0.1,
+                  pointRadius: 0,
+                },
+                {
+                  label: '20日均线',
+                  data: r.positionHistory.map((p) => p.dailyM20),
+                  borderColor: '#3498db',
+                  backgroundColor: 'transparent',
+                  borderWidth: 1,
+                  borderDash: [3, 3],
+                  fill: false,
+                  tension: 0.1,
+                  pointRadius: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              interaction: { mode: 'index', intersect: false },
+              scales: {
+                y: {
+                  title: {
+                    display: true,
+                    text: '价格',
+                  },
+                },
+              },
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      let label = context.dataset.label || ''
+                      if (label) {
+                        label += ': '
+                      }
+                      if (context.dataset.type === 'scatter') {
+                        label += context.parsed.y.toFixed(2)
+                      } else {
+                        label += context.parsed.y.toFixed(2)
+                      }
+                      return label
+                    },
+                    afterBody: function (context) {
+                      const index = context[0].dataIndex
+                      const position = r.positionHistory[index]
+                      if (!position) return []
+
+                      const price = position.price
+                      const m20 = position.m20
+                      const fiveMinuteM20 = position.fiveMinuteM20
+
+                      const lines = []
+
+                      // 30分钟M20状态
+                      if (m20) {
+                        const status30M20 = price > m20 ? '站上' : '跌破'
+                        lines.push(`30分钟M20状态: ${status30M20}`)
+                      }
+
+                      // 5分钟M20状态
+                      if (fiveMinuteM20) {
+                        const status5M20 = price > fiveMinuteM20 ? '站上' : '跌破'
+                        lines.push(`5分钟M20状态: ${status5M20}`)
+                      }
+
+                      return lines
+                    },
+                  },
+                },
+                legend: {
+                  position: 'top',
+                },
+              },
+            },
+          })
+        })
+
+        // 页面第一次打开时，通知最后一次的操作结果
+        if (!hasShownNotification) {
+          validResults.forEach((r) => {
+            if (r.trades.length > 0) {
+              const lastTrade = r.trades[r.trades.length - 1]
+              if ('Notification' in window && Notification.permission === 'granted') {
+                let notificationTitle, notificationBody
+
+                switch (lastTrade.type) {
+                  case 'buy':
+                    notificationTitle = '买入通知'
+                    notificationBody = `${r.name} 站上30分钟M20，买入价格：${lastTrade.price.toFixed(2)}`
+                    break
+                  case 'sell':
+                    // 检查卖出原因
+                    let sellReason = '跌破30分钟M20'
+
+                    // 检查是否是因为跌破20日均线
+                    if (r.dailyData && r.dailyData.length > 0) {
+                      const lastDailyData = r.dailyData[r.dailyData.length - 1]
+                      const lastDailyM20 = r.dailyM20Data[r.dailyM20Data.length - 1]
+                      if (lastDailyData.price < lastDailyM20) {
+                        sellReason = '跌破20日均线'
+                      }
+                    }
+
+                    notificationTitle = '卖出通知'
+                    notificationBody = `${r.name} ${sellReason}，卖出价格：${lastTrade.price.toFixed(2)}`
+                    break
+                  default:
+                    return
+                }
+
+                // new Notification('3020策略交易通知', {
+                //   body: notificationBody,
+                //   icon: 'https://cdn-icons-png.flaticon.com/512/25/25211.png',
+                // })
+                // 发送微信通知
+                NotificationService.addNotification(notificationBody, lastTrade.type, r.symbol || r.name)
+                console.log(notificationBody)
+              }
+            }
+          })
+          hasShownNotification = true
+        }
+      }
+
+      // 主函数
+      async function main() {
+        console.log('30分钟M20策略回测系统')
+
+        // 重置全局持仓
+        globalPositions.clear()
+
+        const results = []
+
+        for (const index of INDICES) {
+          try {
+            const result = await backtest30MinM20Strategy(index.symbol, index.name, index.isT0)
+            results.push(result)
+          } catch (error) {
+            console.error(`✗ ${index.name} 回测失败: ${error.message}`)
+            results.push({ ...index, error: error.message })
+          }
+        }
+
+        // 生成报告
+        generateReport(results)
+
+        // 发送所有微信通知
+        NotificationService.sendAllNotifications()
+      }
+
+      // 页面加载时执行
+      window.onload = function () {
+        // 记录页面打开时间
+        window.pageLoadTime = new Date().getTime()
+
+        main().catch(console.error)
+      }
+
+      // 判断当前时间是否在交易时间段内（9:15-11:30 和 13:00-15:00）
+      function isInTradingHours() {
+        const now = new Date()
+        const hours = now.getHours()
+        const minutes = now.getMinutes()
+        const time = hours * 60 + minutes // 转换为分钟数，方便比较
+
+        // 上午交易时间：9:15-11:30
+        const morningStart = 9 * 60 + 15 // 9:15
+        const morningEnd = 11 * 60 + 30 // 11:30
+
+        // 下午交易时间：13:00-15:00
+        const afternoonStart = 13 * 60 + 0 // 13:00
+        const afternoonEnd = 17 * 60 + 0 // 15:00
+
+        return (time >= morningStart && time <= morningEnd) || (time >= afternoonStart && time <= afternoonEnd)
+      }
+
+      // 计算下一个交易时间段内的30分钟区间的后一分钟
+      function getNextRefreshTime() {
+        const now = new Date()
+        const hours = now.getHours()
+        const minutes = now.getMinutes()
+        const time = hours * 60 + minutes
+
+        // 上午交易时间：9:15-11:30
+        const morningStart = 9 * 60 + 15
+        const morningEnd = 11 * 60 + 30
+
+        // 下午交易时间：13:00-15:00
+        const afternoonStart = 13 * 60 + 0
+        const afternoonEnd = 15 * 60 + 0
+
+        // 计算当前处于哪个30分钟区间
+        const interval = Math.floor(minutes / 30)
+        // 下一个30分钟区间的后一分钟
+        let nextMinutes = (interval + 1) * 30 + 1
+        let nextHours = hours
+
+        // 如果下一个时间在当前时间之前，则设置为下一小时
+        if (nextMinutes >= 60) {
+          nextMinutes = nextMinutes % 60
+          nextHours = nextHours + 1
+        }
+
+        let nextTime = new Date(now)
+        nextTime.setHours(nextHours, nextMinutes, 0, 0)
+
+        const nextTimeInMinutes = nextHours * 60 + nextMinutes
+
+        // 如果下一个时间不在交易时间段内，则调整到下一个交易时间段
+        if (nextTimeInMinutes > morningEnd && nextTimeInMinutes < afternoonStart) {
+          // 在上午收盘后，下午开盘前，设置为下午13:01
+          nextTime.setHours(13, 1, 0, 0)
+        } else if (nextTimeInMinutes > afternoonEnd) {
+          // 在下午收盘后，设置为下一个交易日的上午9:26
+          nextTime.setDate(nextTime.getDate() + 1)
+          nextTime.setHours(9, 26, 0, 0)
+        } else if (nextTimeInMinutes < morningStart) {
+          // 在上午开盘前，设置为上午9:26
+          nextTime.setHours(9, 26, 0, 0)
+        }
+
+        return nextTime
+      }
+
+      // 只在交易时间段内启动定时刷新
+      if (isInTradingHours()) {
+        // 计算到下一个刷新时间的毫秒数
+        const nextRefreshTime = getNextRefreshTime()
+        const delay = nextRefreshTime.getTime() - new Date().getTime()
+
+        console.log(`下一次刷新时间：${nextRefreshTime.toLocaleString()}`)
+        console.log(`延迟：${delay} 毫秒`)
+
+        // 先设置超时器，在到达下一个30分钟的后一分钟时执行第一次刷新
+        setTimeout(function () {
+          main().catch(console.error)
+
+          // 然后设置每30分钟执行一次的定时器
+          setInterval(function () {
+            // 只在交易时间段内执行刷新
+            if (isInTradingHours()) {
+              main().catch(console.error)
+            } else {
+              console.log('当前不在交易时间段内，跳过刷新')
+            }
+          }, 1800000) // 30分钟
+        }, delay)
+      } else {
+        console.log('当前不在交易时间段内（9:15-11:30 或 13:00-15:00），不启动定时刷新')
+      }
+    </script>
+  </body>
+</html>

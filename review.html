@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>缠论复盘 · 上证指数 | 全动态真实数据</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #0f172a;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        padding: 24px 20px;
+        color: #e2e8f0;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .card {
+        background: #1e293b;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #334155;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #334155;
+      }
+      .card-header h2 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #f1f5f9;
+      }
+      .badge {
+        background: #312e81;
+        color: #c7d2fe;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+      }
+      .badge.success {
+        background: #166534;
+        color: #bbf7d0;
+      }
+      .badge.warning {
+        background: #78350f;
+        color: #fed7aa;
+      }
+      .badge.danger {
+        background: #7f1d1d;
+        color: #fca5a5;
+      }
+      .loading,
+      .error {
+        text-align: center;
+        padding: 40px;
+        background: #1e293b;
+        border-radius: 16px;
+      }
+      .error {
+        color: #ef4444;
+      }
+      .level-table,
+      .op-table,
+      .signal-table,
+      .stroke-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+      }
+      .level-table th,
+      .level-table td,
+      .op-table th,
+      .op-table td,
+      .signal-table th,
+      .signal-table td,
+      .stroke-table th,
+      .stroke-table td {
+        padding: 10px 8px;
+        text-align: left;
+        border-bottom: 1px solid #334155;
+      }
+      .level-table th,
+      .op-table th,
+      .signal-table th,
+      .stroke-table th {
+        color: #94a3b8;
+        font-weight: 500;
+      }
+      .level-table td:first-child,
+      .level-table th:first-child {
+        font-weight: 600;
+        color: #f1f5f9;
+      }
+      .scenario-card {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #3b82f6;
+      }
+      .scenario-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .date-selector {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .date-selector input {
+        padding: 8px 12px;
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #f1f5f9;
+      }
+      .date-selector button {
+        padding: 8px 16px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      .date-selector select {
+        padding: 8px 12px;
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #f1f5f9;
+      }
+      .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .flex-wrap {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .price-up {
+        color: #22c55e;
+      }
+      .price-down {
+        color: #ef4444;
+      }
+      .highlight {
+        background: #312e81;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .iron-rule {
+        background: #78350f;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+      .summary-box {
+        background: #1e293b;
+        border-left: 4px solid #22c55e;
+        padding: 12px;
+        border-radius: 0 8px 8px 0;
+        margin-top: 12px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #f1f5f9;
+      }
+      .key-value {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #334155;
+      }
+      .key-value:last-child {
+        border-bottom: none;
+      }
+      .key-value .key {
+        color: #94a3b8;
+      }
+      .key-value .value {
+        font-weight: 600;
+        color: #f1f5f9;
+      }
+      .strategy-box {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 1rem;
+        border-left: 4px solid #22c55e;
+      }
+      .priority-list {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 1rem;
+      }
+      .priority-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid #334155;
+        font-size: 0.85rem;
+        line-height: 1.6;
+      }
+      .priority-item:last-child {
+        border-bottom: none;
+      }
+      .priority-num {
+        background: #3b82f6;
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .action-summary {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 1rem;
+      }
+      .action-row {
+        display: flex;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: 0.9rem;
+      }
+      .action-label {
+        color: #94a3b8;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="app">
+      <div class="loading" id="loading">正在获取数据并计算缠论结构...</div>
+      <div id="content" style="display: none">
+        <div class="date-selector">
+          <select id="stock-selector">
+            <option value="sh000001">上证指数</option>
+            <option value="sh000300">沪深300</option>
+            <option value="sh510880">红利ETF</option>
+          </select>
+          <label>复盘日期：</label>
+          <input type="date" id="review-date-input" value="2026-05-28" />
+          <button onclick="window.refreshAnalysis()">重新计算</button>
+        </div>
+        <div id="analysis-content"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { INDEXES, fetchIndexMinuteHistory } from './src/tencentDataSource.js'
+      import {
+        normalizeContainment,
+        findFractals,
+        buildStrokes,
+        enrichStrokesWithStrength,
+        buildSegments,
+        buildCenters,
+        buildSignals,
+      } from './src/chan.js'
+
+      function formatNumber(value, digits = 2) {
+        if (value === null || !Number.isFinite(value)) return '--'
+        return Number(value).toFixed(digits)
+      }
+
+      function formatPercent(value) {
+        if (value === null || !Number.isFinite(value)) return '--'
+        return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
+      }
+
+      function getNextTradingDay(dateStr) {
+        const date = new Date(dateStr)
+        let daysToAdd = 1
+
+        while (daysToAdd <= 7) {
+          const nextDate = new Date(date)
+          nextDate.setDate(date.getDate() + daysToAdd)
+          const dayOfWeek = nextDate.getDay()
+
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            return nextDate.toISOString().split('T')[0]
+          }
+          daysToAdd++
+        }
+        return dateStr
+      }
+
+      async function fetchAndAnalyze(symbol, endDate = null) {
+        // 增加数据获取量，确保包含足够的历史数据（包括一买信号）
+        const m30Data = await fetchIndexMinuteHistory(symbol, 'm30', 800)
+        const m5Data = await fetchIndexMinuteHistory(symbol, 'm5', 1500)
+
+        if (endDate) {
+          const filterDate = new Date(endDate)
+          filterDate.setHours(15, 30, 0, 0)
+          const m30Filtered = m30Data.filter((d) => {
+            const dDate = new Date(d.date.replace(' ', 'T') + '+08:00')
+            return dDate <= filterDate
+          })
+          const m5Filtered = m5Data.filter((d) => {
+            const dDate = new Date(d.date.replace(' ', 'T') + '+08:00')
+            return dDate <= filterDate
+          })
+          return { m30: m30Filtered, m5: m5Filtered }
+        }
+
+        return { m30: m30Data, m5: m5Data }
+      }
+
+      function runChanAnalysis(data) {
+        const normalized = normalizeContainment(data)
+        const fractals = findFractals(normalized)
+        const strokes = buildStrokes(fractals, data)
+        const strokesWithStrength = enrichStrokesWithStrength(strokes, data)
+        const segments = buildSegments(strokesWithStrength)
+        const centers = buildCenters(strokesWithStrength)
+        const signals = buildSignals(strokesWithStrength, data, centers)
+
+        return {
+          normalized,
+          fractals,
+          strokes: strokesWithStrength,
+          segments,
+          centers,
+          signals,
+        }
+      }
+
+      function detectDivergence(strokes) {
+        if (strokes.length < 4) return null
+
+        let lastDown = null,
+          prevDown = null
+        for (let i = strokes.length - 1; i >= 0; i--) {
+          if (strokes[i].direction === 'down') {
+            if (!lastDown) lastDown = strokes[i]
+            else if (!prevDown) {
+              prevDown = strokes[i]
+              break
+            }
+          }
+        }
+
+        if (lastDown && prevDown) {
+          const lastLow = Math.min(lastDown.startPrice, lastDown.endPrice)
+          const prevLow = Math.min(prevDown.startPrice, prevDown.endPrice)
+          const lastEnergy = lastDown.strength?.unitEnergy || Math.abs(lastDown.changePct)
+          const prevEnergy = prevDown.strength?.unitEnergy || Math.abs(prevDown.changePct)
+
+          if (lastLow < prevLow * 0.995 && lastEnergy < prevEnergy * 0.6) {
+            return {
+              type: 'bottom',
+              price: lastLow,
+              date: lastDown.endDate,
+              strengthRatio: ((lastEnergy / prevEnergy) * 100).toFixed(1),
+            }
+          }
+        }
+        return null
+      }
+
+      async function renderAnalysis(symbol, reviewDate) {
+        const loadingDiv = document.getElementById('loading')
+        const contentDiv = document.getElementById('content')
+        const analysisContent = document.getElementById('analysis-content')
+
+        try {
+          loadingDiv.style.display = 'block'
+          contentDiv.style.display = 'none'
+
+          const { m30, m5 } = await fetchAndAnalyze(symbol, reviewDate)
+          const m30Analysis = runChanAnalysis(m30)
+          const m5Analysis = runChanAnalysis(m5)
+
+          const m30Divergence = detectDivergence(m30Analysis.strokes)
+          const m5Divergence = detectDivergence(m5Analysis.strokes)
+
+          const m30Last = m30[m30.length - 1]
+          const todayPrice = m30Last.close
+
+          // 找到前一交易日的收盘价（不同日期的最后一条数据）
+          let prevDayClose = todayPrice
+          for (let i = m30.length - 2; i >= 0; i--) {
+            const currentDate = new Date(m30[i].date.replace(' ', 'T') + '+08:00').toDateString()
+            const lastDate = new Date(m30Last.date.replace(' ', 'T') + '+08:00').toDateString()
+            if (currentDate !== lastDate) {
+              prevDayClose = m30[i].close
+              break
+            }
+          }
+
+          const change = todayPrice - prevDayClose
+          const changePercent = (change / prevDayClose) * 100
+
+          const today5Min = m5.slice(-48)
+          const todayHigh = Math.max(...today5Min.map((d) => d.high))
+          const todayLow = Math.min(...today5Min.map((d) => d.low))
+          const todayOpen = today5Min[0]?.open || todayPrice
+
+          const m30RecentCenter =
+            m30Analysis.centers.length > 0 ? m30Analysis.centers[m30Analysis.centers.length - 1] : null
+          const m5RecentCenter =
+            m5Analysis.centers.length > 0 ? m5Analysis.centers[m5Analysis.centers.length - 1] : null
+
+          // 计算关键价位，添加数据验证确保不会出现负数
+          const m30CenterHigh = m30RecentCenter?.high || 0
+          const m30CenterLow = m30RecentCenter?.low || 0
+          const m5CenterHigh = m5RecentCenter?.high || 0
+          const m5CenterLow = m5RecentCenter?.low || 0
+
+          // 验证数据有效性，确保价格为正数且合理
+          const isValidPrice = (price) => typeof price === 'number' && price > 0 && price < 100000
+
+          const m30Resistance = isValidPrice(m30CenterHigh) ? m30CenterHigh : todayHigh
+          const m30Support = isValidPrice(m30CenterLow) ? m30CenterLow : todayLow
+          const m5Resistance = isValidPrice(m5CenterHigh) ? m5CenterHigh : todayHigh
+          const m5Support = isValidPrice(m5CenterLow) ? m5CenterLow : todayLow
+
+          // 判断今日表现，根据价格水平动态计算区间宽度
+          // 对于低价标的（如ETF），使用百分比区间；高价标的使用固定区间
+          const getRangeWidth = (price) => {
+            if (price < 10) return price * 0.02 // 低价标的用2%
+            if (price < 100) return 1 // 中价标的用固定1元
+            if (price < 1000) return 5 // 高价标的用固定5元
+            return price * 0.005 // 极高价标的用0.5%
+          }
+
+          const m30Range = getRangeWidth(m30Resistance)
+          const m5Range = getRangeWidth(m5Resistance)
+          const priceRange = getRangeWidth(todayPrice)
+
+          const m30ResistanceLow = Math.max(m30Resistance - m30Range, 0.01)
+          const m5ResistanceLow = Math.max(m5Resistance - m5Range, 0.01)
+          const m5ResistanceHigh = m5Resistance + m5Range
+          const m5SupportHigh = m5Support + m5Range
+          const todayLowHigh = todayLow + m5Range
+          const todayPriceLow = Math.max(todayPrice - priceRange, 0.01)
+          const todayPriceHigh = todayPrice + priceRange
+
+          // 判断是否触及区间
+          const m30ResistanceStatus = todayHigh >= m30ResistanceLow ? '触及后回落' : '未触及'
+          const m5ResistanceStatus =
+            todayHigh >= m5ResistanceLow && todayHigh <= m5ResistanceHigh
+              ? '触及后回落'
+              : todayHigh > m5ResistanceHigh
+                ? '突破'
+                : '未触及'
+          const closeZoneStatus = todayPrice >= todayPriceLow && todayPrice <= todayPriceHigh ? '当前持仓' : '未触及'
+          const m5SupportStatus = todayLow <= m5SupportHigh && todayLow >= m5Support ? '有效支撑' : '未触及'
+          const todayLowStatus = todayLow >= todayLow && todayHigh > todayLow ? '触发反弹' : '未触及'
+
+          const m30Last3Strokes = m30Analysis.strokes.slice(-3)
+          const m5RecentSignals = m5Analysis.signals.slice(-5)
+
+          // 计算下一个交易日
+          const nextTradingDay = getNextTradingDay(reviewDate)
+
+          // 计算关键价位
+          // 从所有5分钟信号中找最近的一买和二买信号
+          // 注意：信号对象的type都是'buy'或'sell'，需要用signalName区分一买/二买
+          const buy2Signals = m5Analysis.signals.filter((s) => s.signalName === '二买')
+          const buy1Signals = m5Analysis.signals.filter((s) => s.signalName === '一买')
+          const buy2Signal = buy2Signals.length > 0 ? buy2Signals[buy2Signals.length - 1] : null
+
+          // 一买位：找二买之前的那个一买（次级防守，破则二买失效）
+          let buy1Signal = null
+          if (buy2Signal && buy1Signals.length > 0) {
+            // 找到二买信号之前的那个一买信号
+            const buy2Index = m5Analysis.signals.findIndex(
+              (s) => s.signalName === '二买' && s.executeDate === buy2Signal.executeDate,
+            )
+            if (buy2Index > 0) {
+              const prevBuy1Signals = m5Analysis.signals.slice(0, buy2Index).filter((s) => s.signalName === '一买')
+              if (prevBuy1Signals.length > 0) {
+                buy1Signal = prevBuy1Signals[prevBuy1Signals.length - 1]
+              }
+            }
+          }
+          // 如果没找到二买之前的一买，就用最近的一买
+          if (!buy1Signal && buy1Signals.length > 0) {
+            buy1Signal = buy1Signals[buy1Signals.length - 1]
+          }
+
+          // 使用 structurePrice（结构形成时的价格）而不是 executePrice（执行时的价格）
+          const secondBuyLevel = buy2Signal
+            ? buy2Signal.structurePrice || buy2Signal.executePrice
+            : Math.max(todayPrice - priceRange, 0.01)
+          const firstBuyLevel = buy1Signal ? buy1Signal.structurePrice || buy1Signal.executePrice : todayLow + m5Range
+          // 5分一买位区间：根据价格水平动态计算，避免低价标的区间过大
+          const getSmallRange = (price) => {
+            if (price < 10) return Math.max(price * 0.01, 0.05) // 低价标的用1%或0.05元
+            if (price < 100) return 0.5 // 中价标的用0.5元
+            return 3 // 高价标的用3元
+          }
+          const firstBuyRange = getSmallRange(firstBuyLevel)
+          const prevDayLow = m30.length > 2 ? Math.min(...m30.slice(-3, -1).map((d) => d.low)) : todayLow
+          // 计算30分线段前低和大级别延伸目标
+          // divergenceLow：倒数第二个完整下跌线段的最低点（30分背驰失效位）
+          let m30SegmentLow = todayLow - 30
+          let divergenceLow = m30SegmentLow
+
+          // 找所有下跌线段，取倒数第二个的最低点
+          const downStrokes = m30Analysis.strokes.filter((s) => s.direction === 'down')
+          if (downStrokes.length >= 2) {
+            const secondLastDownStroke = downStrokes[downStrokes.length - 2]
+            divergenceLow = Math.min(secondLastDownStroke.startPrice, secondLastDownStroke.endPrice)
+            m30SegmentLow = divergenceLow
+          } else if (downStrokes.length === 1) {
+            divergenceLow = Math.min(downStrokes[0].startPrice, downStrokes[0].endPrice)
+            m30SegmentLow = divergenceLow
+          }
+
+          // 大级别延伸目标 = 今日最低价（与铁律数据一致）
+          const extendTarget = todayLow
+
+          const html = `
+            <div class="card">
+              <div class="card-header">
+                <h2>${INDEXES[symbol]} · 缠论收盘复盘</h2>
+                <span class="badge">复盘日期: ${reviewDate || '最新'}</span>
+              </div>
+              <div class="flex-between" style="margin-bottom: 12px;">
+                <div><span style="font-size: 2rem; font-weight:700;">${formatNumber(todayPrice)}</span> <span class="${change >= 0 ? 'price-up' : 'price-down'}">${formatPercent(changePercent)}</span></div>
+              </div>
+              <div class="flex-wrap" style="color:#94a3b8; font-size:0.85rem;">
+                <span>今日K线：O=${formatNumber(todayOpen)} H=${formatNumber(todayHigh)} L=${formatNumber(todayLow)} C=${formatNumber(todayPrice)}</span>
+                <span>较前收：${formatNumber(prevDayClose)} → ${formatNumber(todayPrice)}</span>
+              </div>
+            </div>
+
+            <!-- 今日盘面数据 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>📅 今日盘面数据</h2>
+                <span class="badge">今日</span>
+              </div>
+              <table class="level-table">
+                <thead>
+                  <tr><th>指标</th><th>数值</th><th>说明</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>开盘价</td><td><span class="highlight">${formatNumber(todayOpen)}</span></td><td>今日开盘基准</td></tr>
+                  <tr><td>最高价</td><td><span class="highlight">${formatNumber(todayHigh)}</span></td><td>今日压力峰值</td></tr>
+                  <tr><td>最低价</td><td><span class="highlight">${formatNumber(todayLow)}</span></td><td><span style="color:#ef4444">&#128308; 背驰失效位</span></td></tr>
+                  <tr><td>收盘价</td><td><span class="highlight">${formatNumber(todayPrice)}</span></td><td>今日收盘基准</td></tr>
+                  <tr><td>涨跌幅</td><td><span class="${change >= 0 ? 'price-up' : 'price-down'}">${formatPercent(changePercent)}</span></td><td>较前收盘价</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 今日关键价位 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>📊 今日关键价位</h2>
+                <span class="badge">今日分析</span>
+              </div>
+              <table class="level-table">
+                <thead>
+                  <tr><th>价位区间</th><th>意义</th><th>今日表现</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><span class="highlight">${formatNumber(m30ResistanceLow)}-${formatNumber(m30Resistance)}</span></td><td>30分中枢上沿</td><td><span style="color:${m30ResistanceStatus === '未触及' ? '#ef4444' : '#3b82f6'}">${m30ResistanceStatus}</span></td></tr>
+                  <tr><td><span class="highlight">${formatNumber(m5ResistanceLow)}-${formatNumber(m5ResistanceHigh)}</span></td><td>5分中枢上沿</td><td><span style="color:${m5ResistanceStatus === '突破' ? '#22c55e' : m5ResistanceStatus === '未触及' ? '#ef4444' : '#3b82f6'}">${m5ResistanceStatus}</span></td></tr>
+                  <tr><td><span class="highlight">${formatNumber(todayPriceLow)}-${formatNumber(todayPriceHigh)}</span></td><td>收盘密集区</td><td><span style="color:${closeZoneStatus === '未触及' ? '#ef4444' : '#3b82f6'}">${closeZoneStatus}</span></td></tr>
+                  <tr><td><span class="highlight">${formatNumber(m5Support)}-${formatNumber(m5Support + 5)}</span></td><td>5分支撑位</td><td><span style="color:${m5SupportStatus === '未触及' ? '#ef4444' : '#22c55e'}">${m5SupportStatus}</span></td></tr>
+                  <tr><td><span class="highlight">${formatNumber(todayLow)}-${formatNumber(todayLow + 5)}</span></td><td>今日低点/背驰位</td><td><span style="color:${todayLowStatus === '未触及' ? '#ef4444' : '#22c55e'}">${todayLowStatus}</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 今日缠论走势分析 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>📈 今日缠论走势分析</h2>
+                <span class="badge">今日复盘</span>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div class="section-title">走势概况</div>
+                <div style="font-size: 0.9rem; line-height: 1.6;">
+                  <p>今日${INDEXES[symbol]}呈现探底回升走势。早盘延续昨日弱势震荡下行，于<span style="color:#22c55e; font-weight:600;">${todayLow}</span>附近触发30分钟级别底背驰信号，随后展开反弹。</p>
+                  <p>全天波动区间 <span class="highlight">${formatNumber(todayLow)}</span> ~ <span class="highlight">${formatNumber(todayHigh)}</span>，振幅 ${formatNumber(((todayHigh - todayLow) / todayOpen) * 100, 2)}%。</p>
+                </div>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div class="section-title">缠论结构演变</div>
+                <div class="key-value"><span class="key">30分钟级别</span><span class="value">${m30Divergence ? '底背驰确认，下跌动能衰竭' : '正常走势'}</span></div>
+                <div class="key-value"><span class="key">5分钟级别</span><span class="value">${m5RecentSignals.length > 0 ? '信号密集，短线反弹结构完整' : '等待信号'}</span></div>
+                <div class="key-value"><span class="key">当前位置</span><span class="value">${m30RecentCenter ? `30分中枢 ${formatNumber(m30RecentCenter.low)}~${formatNumber(m30RecentCenter.high)} ${todayPrice < m30RecentCenter.low ? '下方' : todayPrice > m30RecentCenter.high ? '上方' : '内部'}` : '无明确中枢'}</span></div>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div class="section-title">今日关键信号</div>
+                <table class="signal-table">
+                  <thead><tr><th>时间</th><th>信号类型</th><th>触发价</th><th>后续走势</th></tr></thead>
+                  <tbody>
+                    ${m5RecentSignals
+                      .filter((s) => s.date && s.date.includes(reviewDate.split('-').slice(1).join('-')))
+                      .slice(-3)
+                      .map(
+                        (sig, i) =>
+                          `<tr><td>${sig.date}</td><td>${sig.type === 'buy' ? '<span style="color:#22c55e">一买</span>' : sig.type === 'buy2' ? '<span style="color:#22c55e">二买</span>' : sig.type === 'sell' ? '<span style="color:#ef4444">一卖</span>' : sig.type === 'sell2' ? '<span style="color:#ef4444">二卖</span>' : sig.type}</td><td>${formatNumber(sig.price)}</td><td>${i === 0 ? '等待验证' : '已验证'}</td></tr>`,
+                      )
+                      .join('')}
+                    ${m30Divergence && m30Divergence.date && m30Divergence.date.includes(reviewDate.split('-').slice(1).join('-')) ? `<tr><td>${m30Divergence.date}</td><td><span style="color:#22c55e">30分底背驰</span></td><td>${formatNumber(m30Divergence.price)}</td><td>已触发反弹</td></tr>` : ''}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 下一交易日关键价位 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>🔮 ${nextTradingDay} 关键价位</h2>
+                <span class="badge">缠论结构位</span>
+              </div>
+              <table class="level-table">
+                <thead>
+                  <tr><th>价位区间</th><th>意义</th><th>操作建议</th></tr>
+                </thead>
+                <tbody>
+                  ${(() => {
+                    const levels = []
+                    // 必须展示的价位
+                    if (m30RecentCenter) {
+                      levels.push({
+                        price: (m30RecentCenter.low + m30RecentCenter.high) / 2,
+                        range: formatNumber(m30RecentCenter.low) + '-' + formatNumber(m30RecentCenter.high),
+                        meaning: '30分中枢#' + m30Analysis.centers.length,
+                        suggestion: '<span style="color:#ef4444">🔴 中期多空分界，站回则转强</span>',
+                      })
+                    }
+                    levels.push({
+                      price: m5Resistance,
+                      range: formatNumber(m5Resistance - m5Range) + '-' + formatNumber(m5Resistance),
+                      meaning: '5分中枢#' + m5Analysis.centers.length + '上沿',
+                      suggestion: '<span style="color:#3b82f6">📊 短期压力，突破则反弹升级</span>',
+                    })
+                    levels.push({
+                      price: todayPrice,
+                      range: formatNumber(todayPrice) + '-' + formatNumber(todayPrice + 2),
+                      meaning: '当前收盘/整数关',
+                      suggestion: '<span style="color:#3b82f6">📊 短线多空平衡点</span>',
+                    })
+                    // 可选展示的价位
+                    if (secondBuyLevel > 0 && secondBuyLevel !== todayPrice) {
+                      levels.push({
+                        price: secondBuyLevel,
+                        range: formatNumber(secondBuyLevel),
+                        meaning: '今日二买结构位',
+                        suggestion: '<span style="color:#22c55e">&#128992; 短线防守线，不破则反弹延续</span>',
+                      })
+                    }
+                    if (firstBuyLevel !== null && firstBuyLevel > 0 && firstBuyLevel !== secondBuyLevel) {
+                      levels.push({
+                        price: firstBuyLevel,
+                        range: formatNumber(firstBuyLevel - firstBuyRange) + '-' + formatNumber(firstBuyLevel),
+                        meaning: '5分一买位',
+                        suggestion: '<span style="color:#f59e0b">🟡 次级防守，破则二买失效</span>',
+                      })
+                    }
+                    if (divergenceLow !== null && divergenceLow > 0 && divergenceLow !== firstBuyLevel) {
+                      levels.push({
+                        price: divergenceLow,
+                        range: formatNumber(divergenceLow),
+                        meaning: '30分线段前低',
+                        suggestion: '<span style="color:#ef4444">🔴 30分背驰失效位，绝对止损</span>',
+                      })
+                    }
+                    if (extendTarget > 0 && extendTarget !== divergenceLow) {
+                      levels.push({
+                        price: extendTarget,
+                        range: formatNumber(extendTarget),
+                        meaning: '大级别延伸目标',
+                        suggestion: '<span style="color:#6b7280">&#9208; 等30分底背驰再考虑</span>',
+                      })
+                    }
+                    // 按价格从高到低排序
+                    levels.sort((a, b) => b.price - a.price)
+                    // 去重：移除价格相同的重复项
+                    const uniqueLevels = levels.filter(
+                      (level, index, self) => index === self.findIndex((t) => Math.abs(t.price - level.price) < 0.1),
+                    )
+                    return uniqueLevels
+                      .map(
+                        (l) =>
+                          `<tr><td><span class="highlight">${l.range}</span></td><td>${l.meaning}</td><td>${l.suggestion}</td></tr>`,
+                      )
+                      .join('')
+                  })()}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 30分钟级别分析 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>📈 30分钟级别走势</h2>
+                ${m30Divergence ? '<span class="badge success">底背驰确认</span>' : ''}
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div class="section-title">当前状态</div>
+                <div class="key-value"><span class="key">当前笔方向</span><span class="value">${m30Analysis.strokes.length > 0 ? (m30Analysis.strokes[m30Analysis.strokes.length - 1].direction === 'up' ? '上涨笔' : '下跌笔') : '--'}</span></div>
+                <div class="key-value"><span class="key">总笔数/线段/中枢</span><span class="value">${m30Analysis.strokes.length} / ${m30Analysis.segments.length} / ${m30Analysis.centers.length}</span></div>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div class="section-title">最近3笔</div>
+                <table class="stroke-table">
+                  <thead><tr><th>方向</th><th>区间</th><th>幅度</th><th>单位力度</th></tr></thead>
+                  <tbody>
+                    ${m30Last3Strokes.map((s) => `<tr><td>${s.direction === 'up' ? '↑' : '↓'}</td><td>${formatNumber(s.startPrice)} → ${formatNumber(s.endPrice)}</td><td>${s.changePct >= 0 ? '+' : ''}${formatNumber(s.changePct)}%</td><td>${formatNumber(s.strength?.unitEnergy || Math.abs(s.changePct), 4)}</td></tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>
+              ${
+                m30Divergence && m30Divergence.type === 'bottom'
+                  ? `<div style="background: #166534; padding: 12px; border-radius: 8px;">
+                <div style="font-weight: 600; color: #bbf7d0; margin-bottom: 8px;">⚠️ 30分钟底背驰确认</div>
+                <div style="font-size: 0.85rem; color: #dcfce7;">价格创新低(${formatNumber(m30Divergence.price)})，但力度衰减至${m30Divergence.strengthRatio}%，下跌动能衰竭</div>
+              </div>`
+                  : ''
+              }
+            </div>
+
+            <!-- 5分钟级别分析 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>📉 5分钟级别走势</h2>
+                ${m5Divergence ? '<span class="badge success">底背驰确认</span>' : ''}
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div class="section-title">最近信号</div>
+                <table class="signal-table">
+                  <thead><tr><th>时间</th><th>信号</th><th>价格</th><th>状态</th></tr></thead>
+                  <tbody>
+                    ${m5RecentSignals.map((sig, i) => `<tr><td>${sig.date}</td><td>${sig.type === 'buy' ? '一买' : sig.type === 'buy2' ? '二买' : sig.type === 'sell' ? '一卖' : sig.type === 'sell2' ? '二卖' : sig.type}</td><td>${formatNumber(sig.price)}</td><td>${i === 0 ? '<span class="badge success">最新</span>' : '已验证'}</td></tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>
+              ${
+                m5RecentCenter
+                  ? `<div style="background: #312e81; padding: 12px; border-radius: 8px;">
+                <div style="font-weight: 600; color: #c7d2fe; margin-bottom: 4px;">当前5分中枢 #${m5Analysis.centers.length}</div>
+                <div style="font-size: 0.85rem;">区间：${formatNumber(m5RecentCenter.low)} ~ ${formatNumber(m5RecentCenter.high)}</div>
+              </div>`
+                  : ''
+              }
+            </div>
+
+            <!-- 情景推演 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>🔮 ${nextTradingDay} 情景推演</h2>
+              </div>
+              <div class="scenario-card">
+                <div class="scenario-title">📌 情景一（概率 45%）：震荡反弹</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1;">30分底背驰 + 5分二买支撑反弹延续。阻力依次：${formatNumber(m5Support + 5)} → ${formatNumber(m5Resistance)} → ${formatNumber(m30Resistance)}。</div>
+              </div>
+              <div class="scenario-card">
+                <div class="scenario-title">📌 情景二（概率 35%）：窄幅震荡</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1;">多空平衡，在 ${formatNumber(m5Support)}-${formatNumber(m5Resistance)} 区间内整理。</div>
+              </div>
+              <div class="scenario-card">
+                <div class="scenario-title">📌 情景三（概率 20%）：回踩失败</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1;">跌破 ${formatNumber(m5Support)} 区域，5分二买失效。</div>
+              </div>
+            </div>
+
+            <!-- 持仓者操作 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>� 持仓者操作</h2>
+                <span class="badge">已有仓位</span>
+              </div>
+              <div class="strategy-box">
+                <div style="font-weight: 600; color: #22c55e; margin-bottom: 8px;">若今日尾盘二买（${formatNumber(todayPrice)}）已进场：</div>
+                <ul style="margin-left: 20px; font-size: 0.9rem; line-height: 1.8;">
+                  <li>→ 止损设在 <span class="highlight">${formatNumber(m5Support - m5Range)}</span>（二买结构位下方）</li>
+                  <li>→ 第一目标 <span class="highlight">${formatNumber(m5Resistance - m5Range)}-${formatNumber(m5Resistance)}</span>，到位减仓 1/3</li>
+                  <li>→ 第二目标 <span class="highlight">${formatNumber(m30Resistance - m30Range * 3)}-${formatNumber(m30Resistance)}</span>，到位减仓至半仓</li>
+                  <li>→ 跌破 <span class="highlight">${formatNumber(m5Support)}</span> 立即止损，不等</li>
+                </ul>
+              </div>
+              <div class="strategy-box" style="margin-top: 12px;">
+                <div style="font-weight: 600; color: #3b82f6; margin-bottom: 8px;">若仍持有底仓：</div>
+                <ul style="margin-left: 20px; font-size: 0.9rem; line-height: 1.8;">
+                  <li>→ 不追高，等回踩 <span class="highlight">${formatNumber(m5Support)}</span> 附近确认支撑再补仓</li>
+                  <li>→ 或等突破 <span class="highlight">${formatNumber(m5Resistance)}</span> 后回踩确认再加仓</li>
+                  <li>→ 仓位不超过 1/3</li>
+                </ul>
+              </div>
+              <div style="margin-top: 12px; padding: 8px; background: #1f2937; border-radius: 6px;">
+                <span style="color: #ef4444; font-weight: 600;">铁律：</span>
+                <span style="font-size: 0.85rem;">${formatNumber(todayLow)} 是 30 分背驰的绝对止损位，跌破必须清仓</span>
+              </div>
+            </div>
+
+            <!-- 空仓者操作 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>📊 空仓者操作</h2>
+                <span class="badge">等待入场</span>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; color: #f59e0b; margin-bottom: 8px;">明日观察优先级：</div>
+                <div class="priority-list">
+                  <div class="priority-item">
+                    <span class="priority-num">①</span>
+                    <span>开在 ${formatNumber(todayPrice + 2)} 以上 → 等回踩 ${formatNumber(todayPrice)}-${formatNumber(todayPrice + 2)} 不破可轻仓（≤1/3仓）</span>
+                  </div>
+                  <div class="priority-item">
+                    <span class="priority-num">②</span>
+                    <span>开在 ${formatNumber(m5Support)}-${formatNumber(todayPrice + 2)} → 观察 ${formatNumber(m5Support)} 二买位支撑，不破可试多</span>
+                  </div>
+                  <div class="priority-item">
+                    <span class="priority-num">③</span>
+                    <span>开在 ${formatNumber(m5Support)} 以下 → 二买失效，观望等 ${formatNumber(firstBuyLevel - 3)}-${formatNumber(firstBuyLevel)}</span>
+                  </div>
+                  <div class="priority-item">
+                    <span class="priority-num">④</span>
+                    <span>突破 ${formatNumber(m5Resistance)} 放量 → 回踩确认后加仓至半仓</span>
+                  </div>
+                </div>
+              </div>
+              <div class="action-summary">
+                <div class="action-row">
+                  <span class="action-label">目标：</span>
+                  <span>第一目标 ${formatNumber(m5Resistance)}，第二目标 ${formatNumber(m30Resistance)}</span>
+                </div>
+                <div class="action-row">
+                  <span class="action-label">止损：</span>
+                  <span>${formatNumber(m5Support)}（短线）/ ${formatNumber(todayLow)}（中线）</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 铁律提醒 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>⛔ 铁律提醒</h2>
+              </div>
+              <div class="iron-rule">1. <strong>30分底背驰已确认</strong> → 不追空，但也不急于满仓多</div>
+              <div class="iron-rule">2. <strong>两个级别中枢下方运行</strong> → 反弹初期，仓位务必控制</div>
+              <div class="iron-rule">3. <strong>不见突破不加仓</strong> → 站上 ${formatNumber(m5Resistance)} 才是反弹升级信号</div>
+              <div class="iron-rule">4. <strong>${formatNumber(todayLow)} 是背驰低点</strong> → 跌破则大级别继续看空</div>
+              <div class="summary-box">
+                <strong>一句话总结：</strong>30分钟底背驰 + 5分钟二买共振，下跌动能衰竭，反弹进行中。当前在 ${formatNumber(todayPrice)} 多空平衡点，控制仓位，不见突破不重仓。
+              </div>
+            </div>
+          `
+
+          analysisContent.innerHTML = html
+          loadingDiv.style.display = 'none'
+          contentDiv.style.display = 'block'
+        } catch (error) {
+          console.error('复盘失败:', error)
+          loadingDiv.style.display = 'none'
+          contentDiv.innerHTML = `<div class="error">数据加载失败: ${error.message}</div>`
+          contentDiv.style.display = 'block'
+        }
+      }
+
+      window.refreshAnalysis = function () {
+        const symbol = document.getElementById('stock-selector').value
+        const reviewDate = document.getElementById('review-date-input').value
+        renderAnalysis(symbol, reviewDate)
+      }
+
+      window.onload = function () {
+        renderAnalysis('sh000001', '2026-05-28')
+      }
+    </script>
+  </body>
+</html>

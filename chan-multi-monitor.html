@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>缠论多股监控 - 交易操作列表</title>
+    <script src="src/notificationService.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7fb;
+        --bg-deep: #e8eef5;
+        --surface: #ffffff;
+        --surface-muted: #f8fafc;
+        --surface-strong: #eef4f8;
+        --panel: #ffffff;
+        --line: #d7e0ea;
+        --line-strong: #b8c6d6;
+        --text: #17202a;
+        --muted: #687789;
+        --subtle: #8b98a8;
+        --price: #2563eb;
+        --price-soft: rgba(37, 99, 235, 0.1);
+        --fear: #d97706;
+        --fear-soft: rgba(217, 119, 6, 0.11);
+        --buy: #059669;
+        --sell: #dc2626;
+        --score-accent: #2563eb;
+        --shadow: 0 18px 45px rgba(22, 32, 42, 0.08);
+        --radius: 8px;
+        --radius-sm: 6px;
+        --focus: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--bg);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow-x: hidden;
+        font-family: Inter, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(244, 247, 251, 0.94) 280px), var(--bg);
+        font-variant-numeric: tabular-nums;
+      }
+
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+
+      button:focus-visible {
+        outline: 2px solid var(--price);
+        outline-offset: 2px;
+        box-shadow: var(--focus);
+      }
+
+      .panel {
+        position: relative;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .section {
+        isolation: isolate;
+      }
+
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 32px 24px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        color: var(--text);
+      }
+
+      .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--sell);
+        animation: pulse 2s infinite;
+      }
+
+      .status-dot.running {
+        background: var(--buy);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .refresh-btn {
+        padding: 8px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.875rem;
+        transition: all 160ms ease;
+      }
+
+      .refresh-btn:hover {
+        border-color: var(--line-strong);
+        color: var(--text);
+      }
+
+      .stock-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+        padding: 0 24px;
+      }
+
+      .stock-tab {
+        min-height: 38px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 160ms ease;
+      }
+
+      .stock-tab:hover {
+        border-color: var(--line-strong);
+      }
+
+      .stock-tab.active {
+        border-color: rgba(37, 99, 235, 0.42);
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--price);
+      }
+
+      .trade-section {
+        margin-bottom: 24px;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-end;
+        margin-bottom: 16px;
+        padding: 20px 24px 0;
+      }
+
+      .section-header h2 {
+        margin: 0;
+        font-size: 1.125rem;
+        color: var(--text);
+      }
+
+      .meta {
+        color: var(--subtle);
+        font-size: 0.875rem;
+      }
+
+      .backtest-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        padding: 20px 24px;
+        background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), transparent 150px), var(--panel);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .metric-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .metric strong {
+        font-size: 1.125rem;
+        color: var(--text);
+      }
+
+      .trade-table-wrap {
+        overflow-x: auto;
+        padding: 0 24px 24px;
+      }
+
+      .trade-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      .trade-table th,
+      .trade-table td {
+        padding: 12px 16px;
+        text-align: left;
+      }
+
+      .trade-table th {
+        background: var(--surface-muted);
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.75rem;
+      }
+
+      .trade-table th:first-child {
+        border-top-left-radius: var(--radius-sm);
+      }
+
+      .trade-table th:last-child {
+        border-top-right-radius: var(--radius-sm);
+      }
+
+      .trade-table tbody tr {
+        border-bottom: 1px solid var(--line);
+        transition: background 120ms ease;
+      }
+
+      .trade-table tbody tr:hover {
+        background: var(--surface-muted);
+      }
+
+      .trade-table tbody tr:last-child {
+        border-bottom: none;
+      }
+
+      .trade-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .trade-badge.buy {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--buy);
+      }
+
+      .trade-badge.sell {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--sell);
+      }
+
+      .trade-badge.buy::before,
+      .trade-badge.sell::before {
+        content: '';
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+
+      .trade-badge.buy::before {
+        background: var(--buy);
+      }
+
+      .trade-badge.sell::before {
+        background: var(--sell);
+      }
+
+      .positive {
+        color: var(--buy);
+      }
+
+      .negative {
+        color: var(--sell);
+      }
+
+      .last-trade-table-wrap {
+        overflow-x: auto;
+        padding: 0 24px 24px;
+      }
+
+      .last-trade-table {
+        width: 100%;
+        min-width: 700px;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      .last-trade-table th,
+      .last-trade-table td {
+        padding: 12px 16px;
+        text-align: left;
+      }
+
+      .last-trade-table th {
+        background: linear-gradient(180deg, rgba(5, 150, 105, 0.08), transparent);
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.75rem;
+      }
+
+      .last-trade-table th:first-child {
+        border-top-left-radius: var(--radius-sm);
+      }
+
+      .last-trade-table th:last-child {
+        border-top-right-radius: var(--radius-sm);
+      }
+
+      .last-trade-table tbody tr {
+        border-bottom: 1px solid var(--line);
+        transition: background 120ms ease;
+      }
+
+      .last-trade-table tbody tr:hover {
+        background: var(--surface-muted);
+      }
+
+      .last-trade-table tbody tr:last-child {
+        border-bottom: none;
+      }
+
+      .holding-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .holding-badge.holding {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--buy);
+      }
+
+      .holding-badge.empty {
+        background: rgba(139, 152, 168, 0.1);
+        color: var(--subtle);
+      }
+
+      #trade-empty {
+        padding: 32px 24px;
+        text-align: center;
+        color: var(--subtle);
+      }
+
+      .last-update {
+        margin-top: 16px;
+        text-align: right;
+        font-size: 0.8125rem;
+        color: var(--subtle);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 16px 12px;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .status-bar {
+          flex-wrap: wrap;
+        }
+
+        .section-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .backtest-summary {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📈 缠论多股监控</h1>
+        <div class="status-bar">
+          <span class="status-indicator">
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-text">监控中...</span>
+          </span>
+          <span>
+            轮询间隔：
+            <strong>5 分钟</strong>
+          </span>
+          <span>
+            监控标的：
+            <strong id="stock-count">0</strong>
+            个
+          </span>
+          <button id="refresh-btn" class="refresh-btn">🔄 刷新</button>
+          <button id="test-notification-btn" class="refresh-btn">📢 测试通知</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="trade-section">
+          <div class="section-header">
+            <div>
+              <h2>最后操作汇总</h2>
+              <div class="meta">每个标的的最新交易状态和最后操作记录</div>
+              <div>
+                测试时间：
+                <span id="test-time">--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="last-trade-table-wrap">
+            <table class="last-trade-table">
+              <thead>
+                <tr>
+                  <th>标的</th>
+                  <th>总收益率</th>
+                  <th>胜率</th>
+                  <th>操作次数</th>
+                  <th>最后操作</th>
+                  <th>操作时间</th>
+                  <th>操作价</th>
+                  <th>信号类型</th>
+                  <th>持仓状态</th>
+                </tr>
+              </thead>
+              <tbody id="last-trade-list"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="trade-section">
+          <div class="section-header">
+            <div>
+              <h2>交易操作列表</h2>
+              <div class="meta">
+                监控多个股票的缠论信号，买入信号后下一根 K 线买入，卖出信号后下一根 K 线卖出；不计手续费和滑点。
+              </div>
+            </div>
+          </div>
+
+          <div class="stock-tabs" id="stock-tabs">
+            <!-- 股票标签将通过 JavaScript 动态生成 -->
+          </div>
+
+          <div class="backtest-summary" id="stock-summary-panel">
+            <div class="metric">
+              <div class="metric-label">起始资金</div>
+              <strong id="initial-cash">1,000,000</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">当前总资产</div>
+              <strong id="final-value">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">总收益</div>
+              <strong id="total-profit">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">总收益率</div>
+              <strong id="total-return">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">操作次数</div>
+              <strong id="operation-count">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">胜率</div>
+              <strong id="win-rate">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">当前状态</div>
+              <strong id="position-status">--</strong>
+            </div>
+          </div>
+
+          <div class="backtest-summary">
+            <div class="metric">
+              <div class="metric-label">监控股票数</div>
+              <strong id="monitor-count">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">总信号数</div>
+              <strong id="total-signals">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">买入信号</div>
+              <strong id="buy-signals">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">卖出信号</div>
+              <strong id="sell-signals">--</strong>
+            </div>
+            <div class="metric">
+              <div class="metric-label">最后更新</div>
+              <strong id="last-update-time">--</strong>
+            </div>
+          </div>
+
+          <div class="trade-table-wrap">
+            <table class="trade-table">
+              <thead>
+                <tr>
+                  <th>标的</th>
+                  <th>结构时间</th>
+                  <th>确认时间</th>
+                  <th>成交时间</th>
+                  <th>操作</th>
+                  <th>信号</th>
+                  <th>成交价</th>
+                  <th>结构参考</th>
+                  <th>卖出收益</th>
+                  <th>持仓时长</th>
+                </tr>
+              </thead>
+              <tbody id="trade-list"></tbody>
+            </table>
+          </div>
+          <div id="trade-empty" class="meta">当前周期暂无可执行缠论信号。</div>
+        </div>
+      </div>
+
+      <div class="last-update" id="last-update">最后更新：--</div>
+    </div>
+
+    <script type="module" src="src/chan-multi-monitor.js"></script>
+  </body>
+</html>

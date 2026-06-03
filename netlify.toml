@@ -1,0 +1,30 @@
+[build]
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/"
+  to = "/10-day-line.html"
+  status = 200
+
+[[redirects]]
+  from = "/api/cn/api/json_v2.php/CN_MarketDataService.getKLineData"
+  to = "/.netlify/functions/sina-kline"
+  status = 200
+
+[[redirects]]
+  from = "/api/sina-kline"
+  to = "/.netlify/functions/sina-kline"
+  status = 200
+
+[[redirects]]
+  from = "/api/quote"
+  to = "/.netlify/functions/quote"
+  status = 200

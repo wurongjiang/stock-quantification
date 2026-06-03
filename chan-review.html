@@ -1,0 +1,1530 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>缠论复盘 - 上证指数大盘分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --surface: #ffffff;
+        --text: #17202a;
+        --muted: #687789;
+        --price: #2563eb;
+        --buy: #059669;
+        --sell: #dc2626;
+        --warning: #d97706;
+        --shadow: 0 18px 45px rgba(22, 32, 42, 0.08);
+        --radius: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 28px 24px;
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+        color: white;
+        padding: 32px;
+        border-radius: var(--radius);
+        margin-bottom: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .header h1 {
+        margin: 0 0 12px 0;
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .header-meta {
+        display: flex;
+        gap: 24px;
+        opacity: 0.9;
+        font-size: 14px;
+      }
+
+      .header-meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* Navigation */
+      .nav-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        background: var(--surface);
+        padding: 8px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .nav-tab {
+        flex: 1;
+        padding: 14px 24px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .nav-tab:hover {
+        background: rgba(37, 99, 235, 0.08);
+        color: var(--price);
+      }
+
+      .nav-tab.active {
+        background: var(--price);
+        color: white;
+      }
+
+      /* Content Sections */
+      .content-section {
+        display: none;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #f0f4f8;
+      }
+
+      .card-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--text);
+      }
+
+      .card-header .icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+
+      .icon-blue {
+        background: rgba(37, 99, 235, 0.1);
+      }
+      .icon-green {
+        background: rgba(5, 150, 105, 0.1);
+      }
+      .icon-red {
+        background: rgba(220, 38, 38, 0.1);
+      }
+      .icon-orange {
+        background: rgba(217, 119, 6, 0.1);
+      }
+
+      /* Market Overview */
+      .market-overview {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .metric-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #e8eef5;
+      }
+
+      .metric-label {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .metric-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .metric-change {
+        font-size: 13px;
+        margin-top: 4px;
+      }
+
+      .positive {
+        color: var(--buy);
+      }
+      .negative {
+        color: var(--sell);
+      }
+
+      /* Analysis Content */
+      .analysis-content {
+        line-height: 1.8;
+        color: var(--text);
+      }
+
+      .analysis-content h3 {
+        color: var(--price);
+        font-size: 16px;
+        margin: 20px 0 12px 0;
+        padding-left: 12px;
+        border-left: 3px solid var(--price);
+      }
+
+      .analysis-content p {
+        margin: 0 0 12px 0;
+        text-align: justify;
+      }
+
+      .highlight-box {
+        background: rgba(37, 99, 235, 0.05);
+        border-left: 4px solid var(--price);
+        padding: 16px 20px;
+        margin: 16px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .signal-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        border-radius: 10px;
+        margin: 12px 0;
+      }
+
+      .signal-buy {
+        background: rgba(5, 150, 105, 0.08);
+        border: 1px solid rgba(5, 150, 105, 0.2);
+      }
+
+      .signal-sell {
+        background: rgba(220, 38, 38, 0.08);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+      }
+
+      .signal-neutral {
+        background: rgba(104, 119, 137, 0.08);
+        border: 1px solid rgba(104, 119, 137, 0.2);
+      }
+
+      .signal-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .signal-buy .signal-icon {
+        background: rgba(5, 150, 105, 0.15);
+      }
+      .signal-sell .signal-icon {
+        background: rgba(220, 38, 38, 0.15);
+      }
+      .signal-neutral .signal-icon {
+        background: rgba(104, 119, 137, 0.15);
+      }
+
+      /* Key Levels */
+      .levels-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .level-item {
+        background: #f8fafc;
+        padding: 16px;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .level-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      .level-value {
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      /* Strategy Table */
+      .strategy-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+
+      .strategy-table th,
+      .strategy-table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e8eef5;
+      }
+
+      .strategy-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .strategy-table tr:hover {
+        background: #f8fafc;
+      }
+
+      /* Risk Warning */
+      .risk-warning {
+        background: linear-gradient(135deg, #fff8e6 0%, #fff3d6 100%);
+        border: 1px solid #f0d9a8;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .risk-warning h4 {
+        margin: 0 0 12px 0;
+        color: var(--warning);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .risk-warning ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--text);
+      }
+
+      .risk-warning li {
+        margin-bottom: 8px;
+      }
+
+      /* Stock Selector */
+      .stock-selector {
+        padding: 10px 20px;
+        border: 2px solid #3b82f6;
+        border-radius: 8px;
+        background: #1e293b;
+        color: #f1f5f9;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.3s;
+        min-width: 150px;
+      }
+
+      .stock-selector:hover {
+        border-color: #60a5fa;
+        background: #334155;
+      }
+
+      .stock-selector:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        background: #334155;
+      }
+
+      .stock-selector option {
+        background: #1e293b;
+        color: #f1f5f9;
+        padding: 8px 12px;
+      }
+
+      .stock-selector option:hover {
+        background: #3b82f6;
+        color: white;
+      }
+
+      /* Chart Container */
+      .chart-container {
+        height: 400px;
+        margin: 20px 0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      /* Loading State */
+      .loading {
+        text-align: center;
+        padding: 60px;
+        color: var(--muted);
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e8eef5;
+        border-top-color: var(--price);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .market-overview {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .levels-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>
+          <span>📊</span>
+          缠论复盘
+        </h1>
+        <div class="header-meta">
+          <span>
+            <select id="stock-selector" class="stock-selector">
+              <option value="sh000001">上证指数</option>
+              <option value="sh000300">沪深300</option>
+              <option value="sh000905">中证500</option>
+              <option value="sh000688">科创50</option>
+              <option value="sh510880">红利ETF</option>
+              <option value="sh513120">创新药ETF</option>
+              <option value="sh513160">港股科技</option>
+              <option value="sh518880">黄金ETF</option>
+              <option value="sz159941">纳指ETF</option>
+              <option value="sh513310">中韩</option>
+              <option value="sh562500">机器人</option>
+              <option value="sz159363">人工智能</option>
+              <option value="sh511090">30年国债</option>
+            </select>
+          </span>
+          <span>
+            📅
+            <span id="review-date">--</span>
+          </span>
+          <span>
+            📈 当前点位:
+            <span id="current-index">--</span>
+          </span>
+          <span>
+            ⏰ 数据更新:
+            <span id="update-time">--</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('today')">📋 今日盘面分析</button>
+        <button class="nav-tab" onclick="switchTab('tomorrow')">🔮 明日预测分析</button>
+        <button class="nav-tab" onclick="switchTab('summary')">📝 复盘总结</button>
+      </div>
+
+      <!-- 今日盘面分析 -->
+      <div id="today-section" class="content-section active">
+        <!-- 市场概览 -->
+        <div class="market-overview">
+          <div class="metric-card">
+            <div class="metric-label">上证指数</div>
+            <div class="metric-value" id="sh-index">--</div>
+            <div class="metric-change" id="sh-change">--</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">涨跌点数</div>
+            <div class="metric-value" id="change-points">--</div>
+            <div class="metric-change" id="change-percent">--</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">成交额</div>
+            <div class="metric-value" id="volume">--</div>
+            <div class="metric-change">亿元</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">缠论信号</div>
+            <div class="metric-value" id="chan-signal">--</div>
+            <div class="metric-change" id="signal-desc">--</div>
+          </div>
+        </div>
+
+        <!-- 缠论结构分析 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-blue">📐</div>
+            <h2>缠论结构分析</h2>
+          </div>
+          <div class="analysis-content" id="structure-analysis">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在分析缠论结构...
+            </div>
+          </div>
+        </div>
+
+        <!-- 买卖点信号 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-green">🎯</div>
+            <h2>买卖点信号</h2>
+          </div>
+          <div id="signal-container">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在识别买卖点...
+            </div>
+          </div>
+        </div>
+
+        <!-- 技术指标分析 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-orange">📊</div>
+            <h2>技术指标分析</h2>
+          </div>
+          <div class="analysis-content" id="tech-analysis">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在计算技术指标...
+            </div>
+          </div>
+        </div>
+
+        <!-- 市场情绪 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-red">🌡️</div>
+            <h2>市场情绪分析</h2>
+          </div>
+          <div class="analysis-content" id="sentiment-analysis">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在分析市场情绪...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 明日预测分析 -->
+      <div id="tomorrow-section" class="content-section">
+        <!-- 关键点位 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-blue">🎯</div>
+            <h2>明日关键点位</h2>
+          </div>
+          <div class="levels-grid" id="key-levels">
+            <div class="level-item">
+              <div class="level-label">强压力位</div>
+              <div class="level-value positive" id="resistance-strong">--</div>
+            </div>
+            <div class="level-item">
+              <div class="level-label">弱压力位</div>
+              <div class="level-value" id="resistance-weak">--</div>
+            </div>
+            <div class="level-item">
+              <div class="level-label">当前点位</div>
+              <div class="level-value" id="current-price">--</div>
+            </div>
+            <div class="level-item">
+              <div class="level-label">弱支撑位</div>
+              <div class="level-value" id="support-weak">--</div>
+            </div>
+            <div class="level-item">
+              <div class="level-label">强支撑位</div>
+              <div class="level-value negative" id="support-strong">--</div>
+            </div>
+            <div class="level-item">
+              <div class="level-label">中枢区间</div>
+              <div class="level-value" id="center-range">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 走势预判 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-green">📈</div>
+            <h2>明日走势预判</h2>
+          </div>
+          <div class="analysis-content" id="trend-forecast">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在分析走势...
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作策略 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-orange">⚔️</div>
+            <h2>明日操作策略</h2>
+          </div>
+          <div id="strategy-content">
+            <table class="strategy-table">
+              <thead>
+                <tr>
+                  <th>场景</th>
+                  <th>触发条件</th>
+                  <th>操作建议</th>
+                  <th>仓位建议</th>
+                </tr>
+              </thead>
+              <tbody id="strategy-tbody">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--muted)">加载中...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 铁律提醒 -->
+        <div class="card" id="iron-rules">
+          <div class="loading-spinner"></div>
+          正在生成操作建议...
+        </div>
+
+        <!-- 风险提示 -->
+        <div class="risk-warning">
+          <h4>⚠️ 风险提示</h4>
+          <ul id="risk-list">
+            <li>正在分析风险因素...</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 复盘总结 -->
+      <div id="summary-section" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-blue">📋</div>
+            <h2>今日复盘总结</h2>
+          </div>
+          <div class="analysis-content" id="daily-summary">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在生成复盘总结...
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-green">📊</div>
+            <h2>缠论结构演变</h2>
+          </div>
+          <div id="structure-evolution">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              正在分析结构演变...
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="icon icon-orange">💡</div>
+            <h2>交易心得</h2>
+          </div>
+          <div class="analysis-content" id="trading-insights">
+            <div class="highlight-box">
+              <strong>核心原则：</strong>
+              缠论分析的核心在于识别走势的级别和结构，通过中枢、笔、线段的构建，找到买卖点。在实际操作中，需要结合市场环境、资金流向和情绪面进行综合判断。
+            </div>
+            <h3>今日要点</h3>
+            <p id="today-keypoints">加载中...</p>
+            <h3>明日关注</h3>
+            <p id="tomorrow-focus">加载中...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { INDEXES, fetchIndexMinuteHistory } from './src/tencentDataSource.js'
+      import { normalizeContainment, findFractals, buildStrokes, buildCenters, buildSignals } from './src/chan.js'
+
+      // 当前分析数据
+      let currentData = null
+      let chanAnalysis = null
+
+      // 初始化
+      async function init(symbol = 'sh000001') {
+        const today = new Date()
+        document.getElementById('review-date').textContent = today.toLocaleDateString('zh-CN')
+        document.getElementById('update-time').textContent = today.toLocaleTimeString('zh-CN')
+
+        // 设置选中的股票
+        const selector = document.getElementById('stock-selector')
+        if (selector && selector.value !== symbol) {
+          selector.value = symbol
+        }
+
+        try {
+          console.log('[复盘页面] 开始加载数据...')
+          await loadData(symbol)
+          console.log('[复盘页面] 数据加载成功')
+          console.log(
+            '[复盘页面] chanAnalysis:',
+            JSON.stringify({
+              strokes: chanAnalysis?.strokes?.length || 0,
+              centers: chanAnalysis?.centers?.length || 0,
+              signals: chanAnalysis?.signals?.length || 0,
+              latest: chanAnalysis?.latest ? '存在' : '不存在',
+            }),
+          )
+
+          renderTodayAnalysis()
+          renderTomorrowAnalysis()
+          renderSummary()
+        } catch (error) {
+          console.error('[复盘页面] 数据加载失败:', error)
+          console.error('[复盘页面] 错误详情:', error.message)
+          console.error('[复盘页面] 错误堆栈:', error.stack)
+          showError('数据加载失败，请检查控制台日志')
+        }
+      }
+
+      // 股票选择切换事件
+      document.addEventListener('DOMContentLoaded', () => {
+        const selector = document.getElementById('stock-selector')
+        if (selector) {
+          selector.addEventListener('change', (e) => {
+            const symbol = e.target.value
+            console.log(`[复盘页面] 切换股票: ${symbol}`)
+            init(symbol)
+          })
+        }
+      })
+
+      // 当前分析的股票代码
+      let currentSymbol = 'sh000001'
+
+      // 加载数据
+      async function loadData(symbol = 'sh000001') {
+        currentSymbol = symbol
+        const stockName =
+          document.getElementById('stock-selector')?.options[document.getElementById('stock-selector')?.selectedIndex]
+            ?.text || '股票'
+        console.log(`[loadData] 开始获取${stockName}(${symbol})数据...`)
+
+        let data
+        try {
+          data = await fetchIndexMinuteHistory(symbol, 'm30', 1600)
+          console.log('[loadData] 数据获取成功，原始数据长度:', data?.length || 0)
+        } catch (fetchError) {
+          console.error('[loadData] 获取数据失败:', fetchError.message)
+          throw fetchError
+        }
+
+        if (!data || data.length === 0) {
+          throw new Error('获取数据失败：返回空数据')
+        }
+
+        // 过滤无效数据并转换为数字
+        const cleanRows = data
+          .map((row) => ({
+            date: row.day || row.date || '',
+            open: Number(row.open),
+            close: Number(row.close),
+            high: Number(row.high),
+            low: Number(row.low),
+            volume: Number(row.volume) || 0,
+          }))
+          .filter(
+            (row) =>
+              Number.isFinite(row.open) &&
+              Number.isFinite(row.close) &&
+              Number.isFinite(row.high) &&
+              Number.isFinite(row.low) &&
+              row.close > 0,
+          )
+        console.log('[loadData] 过滤后有效数据:', cleanRows.length)
+
+        if (cleanRows.length === 0) {
+          throw new Error('没有有效数据')
+        }
+
+        currentData = cleanRows
+
+        // 缠论分析
+        try {
+          console.log('[loadData] 开始缠论分析...')
+          const normalizedData = normalizeContainment(cleanRows)
+          console.log('[loadData] normalizeContainment 完成')
+
+          const fractals = findFractals(normalizedData)
+          console.log('[loadData] findFractals 完成，分型数量:', fractals.length)
+
+          const strokes = buildStrokes(fractals, cleanRows)
+          console.log('[loadData] buildStrokes 完成，笔数量:', strokes.length)
+
+          const centers = buildCenters(strokes)
+          console.log('[loadData] buildCenters 完成，中枢数量:', centers.length)
+
+          const signals = buildSignals(strokes, cleanRows, centers)
+          console.log('[loadData] buildSignals 完成，信号数量:', signals.length)
+
+          chanAnalysis = {
+            strokes,
+            centers,
+            signals,
+            latest: cleanRows[cleanRows.length - 1],
+          }
+          console.log('[loadData] chanAnalysis 构建完成')
+        } catch (analysisError) {
+          console.error('[loadData] 缠论分析失败:', analysisError.message)
+          console.error('[loadData] 错误堆栈:', analysisError.stack)
+          throw analysisError
+        }
+
+        // 更新市场概览
+        updateMarketOverview()
+      }
+
+      // 更新市场概览
+      function updateMarketOverview() {
+        if (!chanAnalysis || !chanAnalysis.latest) return
+
+        const latest = chanAnalysis.latest
+        const prev = currentData[currentData.length - 2]
+        const change = latest.close - prev.close
+        const changePercent = (change / prev.close) * 100
+
+        document.getElementById('sh-index').textContent = latest.close.toFixed(2)
+        document.getElementById('current-index').textContent = latest.close.toFixed(2)
+        document.getElementById('change-points').textContent = (change >= 0 ? '+' : '') + change.toFixed(2)
+        document.getElementById('change-percent').textContent =
+          (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%'
+        document.getElementById('change-points').className = 'metric-value ' + (change >= 0 ? 'positive' : 'negative')
+        document.getElementById('change-percent').className =
+          'metric-change ' + (changePercent >= 0 ? 'positive' : 'negative')
+
+        // 成交额（模拟数据）
+        document.getElementById('volume').textContent = (Math.random() * 1000 + 3000).toFixed(0)
+
+        // 缠论信号
+        const lastSignal = chanAnalysis.signals[chanAnalysis.signals.length - 1]
+        if (lastSignal) {
+          const signalType = lastSignal.type.includes('buy') ? '买入' : '卖出'
+          const signalClass = lastSignal.type.includes('buy') ? 'positive' : 'negative'
+          document.getElementById('chan-signal').textContent = signalType
+          document.getElementById('chan-signal').className = 'metric-value ' + signalClass
+          document.getElementById('signal-desc').textContent = lastSignal.signalName || '--'
+        }
+      }
+
+      // 渲染今日盘面分析
+      function renderTodayAnalysis() {
+        if (!chanAnalysis) return
+
+        const { strokes, centers, signals, latest } = chanAnalysis
+        const stockName =
+          document.getElementById('stock-selector')?.options[document.getElementById('stock-selector')?.selectedIndex]
+            ?.text || '当前股票'
+
+        // 获取有效的最后一个中枢
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        // 缠论结构分析
+        const structureHtml = `
+        <h3>笔与线段结构</h3>
+        <p>今日${stockName}形成 <strong>${strokes.length}</strong> 笔，构建 <strong>${centers.length}</strong> 个中枢。
+        ${lastCenter ? `当前价格位于${latest.close > lastCenter.high ? '中枢上方' : latest.close < lastCenter.low ? '中枢下方' : '中枢内部'}，` : ''}
+        最新笔的方向为<strong>${strokes[strokes.length - 1]?.direction === 'up' ? '向上' : '向下'}</strong>。</p>
+        
+        <h3>中枢分析</h3>
+        <p>${
+          lastCenter
+            ? `最新中枢区间 [${lastCenter.low.toFixed(2)}, ${lastCenter.high.toFixed(2)}]，
+          中枢震荡幅度 ${(((lastCenter.high - lastCenter.low) / lastCenter.low) * 100).toFixed(2)}%。
+          当前走势${latest.close > lastCenter.high ? '突破中枢上轨，呈现强势特征' : latest.close < lastCenter.low ? '跌破中枢下轨，需警惕下行风险' : '在中枢内部震荡，等待方向选择'}。`
+            : '当前未形成有效中枢，走势处于趋势运行中。'
+        }</p>
+        
+        <div class="highlight-box">
+          <strong>结构要点：</strong>${generateStructureSummary(strokes, centers, latest)}
+        </div>
+      `
+        document.getElementById('structure-analysis').innerHTML = structureHtml
+
+        // 买卖点信号
+        const recentSignals = signals.slice(-5)
+        let signalsHtml = ''
+
+        if (recentSignals.length > 0) {
+          recentSignals.reverse().forEach((signal) => {
+            const isBuy = signal.type.includes('buy')
+            const signalClass = isBuy ? 'signal-buy' : 'signal-sell'
+            const icon = isBuy ? '📈' : '📉'
+            signalsHtml += `
+            <div class="signal-box ${signalClass}">
+              <div class="signal-icon">${icon}</div>
+              <div>
+                <strong>${signal.signalName || (isBuy ? '买入信号' : '卖出信号')}</strong>
+                <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">
+                  时间: ${signal.executeDate} | 价格: ${signal.executePrice.toFixed(2)} | 
+                  ${signal.referenceText || signal.description || ''}
+                </div>
+              </div>
+            </div>
+          `
+          })
+        } else {
+          signalsHtml = `
+          <div class="signal-box signal-neutral">
+            <div class="signal-icon">⏸️</div>
+            <div>
+              <strong>暂无明确信号</strong>
+              <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">
+                当前处于观望状态，等待缠论买卖点形成
+              </div>
+            </div>
+          </div>
+        `
+        }
+        document.getElementById('signal-container').innerHTML = signalsHtml
+
+        // 技术指标分析
+        const techHtml = generateTechAnalysis()
+        document.getElementById('tech-analysis').innerHTML = techHtml
+
+        // 市场情绪分析
+        const sentimentHtml = generateSentimentAnalysis()
+        document.getElementById('sentiment-analysis').innerHTML = sentimentHtml
+      }
+
+      // 生成结构总结
+      function generateStructureSummary(strokes, centers, latest) {
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        if (!lastCenter) {
+          return '当前处于趋势行情，暂无中枢形成，建议顺势操作，等待回调后的买点或反弹后的卖点。'
+        }
+
+        const position = latest.close > lastCenter.high ? '上方' : latest.close < lastCenter.low ? '下方' : '内部'
+
+        if (position === '上方') {
+          return '价格突破中枢上轨，形成第三类买点，趋势向上延续概率较大，可关注回踩确认机会。'
+        } else if (position === '下方') {
+          return '价格跌破中枢下轨，形成第三类卖点，趋势向下延续概率较大，需警惕进一步下跌风险。'
+        } else {
+          return '价格在中枢内部震荡，属于盘整格局，建议高抛低吸或等待突破方向明确后再操作。'
+        }
+      }
+
+      // 生成技术分析
+      function generateTechAnalysis() {
+        if (!currentData || currentData.length < 20) {
+          return '<p>数据不足，无法生成技术分析</p>'
+        }
+
+        const closes = currentData.map((d) => d.close)
+        const volumes = currentData.map((d) => d.volume)
+        const latest = closes[closes.length - 1]
+
+        // 计算均线
+        const ma5 = calculateMA(closes, 5)
+        const ma10 = calculateMA(closes, 10)
+        const ma20 = calculateMA(closes, 20)
+
+        // 计算MACD
+        const macd = calculateMACD(closes)
+
+        // 成交量分析
+        const avgVolume = volumes.slice(-5).reduce((a, b) => a + b, 0) / 5
+        const latestVolume = volumes[volumes.length - 1]
+        const volumeRatio = latestVolume / avgVolume
+
+        return `
+        <h3>均线系统</h3>
+        <p>MA5: ${ma5.toFixed(2)} | MA10: ${ma10.toFixed(2)} | MA20: ${ma20.toFixed(2)}</p>
+        <p>当前价格${latest > ma5 ? '站上' : '跌破'}MA5，${latest > ma10 ? '站上' : '跌破'}MA10，
+        ${latest > ma20 ? '中长期趋势向上' : '中长期趋势向下'}。
+        ${ma5 > ma10 ? '短期均线多头排列，强势特征' : '短期均线空头排列，弱势特征'}。</p>
+        
+        <h3>MACD指标</h3>
+        <p>DIF: ${macd.dif.toFixed(3)} | DEA: ${macd.dea.toFixed(3)} | MACD: ${macd.macd.toFixed(3)}</p>
+        <p>${macd.macd > 0 ? 'MACD红柱，多头占优' : 'MACD绿柱，空头占优'}，
+        ${macd.dif > macd.dea ? 'DIF在DEA上方，金叉状态' : 'DIF在DEA下方，死叉状态'}。</p>
+        
+        <h3>成交量分析</h3>
+        <p>今日成交额 ${(latestVolume / 10000).toFixed(2)} 亿元，
+        较5日均量${volumeRatio > 1 ? '放大' : '萎缩'} ${(Math.abs(volumeRatio - 1) * 100).toFixed(1)}%。
+        ${volumeRatio > 1.2 ? '放量明显，资金活跃' : volumeRatio < 0.8 ? '缩量明显，观望情绪浓厚' : '量能平稳'}。</p>
+      `
+      }
+
+      // 计算均线
+      function calculateMA(data, period) {
+        if (data.length < period) return 0
+        const sum = data.slice(-period).reduce((a, b) => a + b, 0)
+        return sum / period
+      }
+
+      // 计算MACD
+      function calculateMACD(data) {
+        const ema12 = calculateEMA(data, 12)
+        const ema26 = calculateEMA(data, 26)
+        const dif = ema12 - ema26
+        const dea = calculateEMA([...Array(25).fill(0), dif], 9)
+        const macd = (dif - dea) * 2
+        return { dif, dea, macd }
+      }
+
+      // 计算EMA
+      function calculateEMA(data, period) {
+        const k = 2 / (period + 1)
+        let ema = data[0]
+        for (let i = 1; i < data.length; i++) {
+          ema = data[i] * k + ema * (1 - k)
+        }
+        return ema
+      }
+
+      // 生成市场情绪分析
+      function generateSentimentAnalysis() {
+        if (!chanAnalysis) return '<p>数据加载中...</p>'
+
+        const { signals, latest } = chanAnalysis
+        const recentSignals = signals.slice(-10)
+        const buyCount = recentSignals.filter((s) => s.type.includes('buy')).length
+        const sellCount = recentSignals.filter((s) => s.type.includes('sell')).length
+
+        let sentiment = '中性'
+        let sentimentDesc = '市场情绪平稳，多空双方力量均衡'
+
+        if (buyCount > sellCount + 2) {
+          sentiment = '偏多'
+          sentimentDesc = '近期买入信号占优，市场情绪偏向乐观'
+        } else if (sellCount > buyCount + 2) {
+          sentiment = '偏空'
+          sentimentDesc = '近期卖出信号占优，市场情绪偏向谨慎'
+        }
+
+        return `
+        <h3>缠论信号统计</h3>
+        <p>近10个信号中，买入信号 <strong>${buyCount}</strong> 个，卖出信号 <strong>${sellCount}</strong> 个。
+        信号分布显示市场情绪<strong>${sentiment}</strong>。</p>
+        
+        <h3>情绪判断</h3>
+        <p>${sentimentDesc}。从缠论结构看，${generateSentimentDetail()}</p>
+        
+        <div class="highlight-box">
+          <strong>情绪要点：</strong>${generateSentimentKeypoint()}
+        </div>
+      `
+      }
+
+      // 生成情绪详情
+      function generateSentimentDetail() {
+        if (!chanAnalysis) return ''
+        const { centers, latest } = chanAnalysis
+
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        if (!lastCenter) {
+          return '当前处于趋势运行中，市场情绪较为一致。'
+        }
+
+        if (latest.close > lastCenter.high) {
+          return '价格突破中枢，市场情绪乐观，做多意愿较强。'
+        } else if (latest.close < lastCenter.low) {
+          return '价格跌破中枢，市场情绪悲观，做空意愿较强。'
+        } else {
+          return '价格在中枢震荡，市场情绪犹豫，多空分歧较大。'
+        }
+      }
+
+      // 生成情绪要点
+      function generateSentimentKeypoint() {
+        if (!chanAnalysis) return ''
+        const { strokes, latest } = chanAnalysis
+
+        if (strokes.length < 3) return '笔数不足，建议继续观察'
+
+        const lastStroke = strokes[strokes.length - 1]
+        const prevStroke = strokes[strokes.length - 2]
+
+        if (lastStroke.direction === 'up' && prevStroke.direction === 'down') {
+          return '出现向上笔，可能形成底分型，关注是否出现买入机会。'
+        } else if (lastStroke.direction === 'down' && prevStroke.direction === 'up') {
+          return '出现向下笔，可能形成顶分型，关注是否出现卖出机会。'
+        } else {
+          return '笔的方向延续，趋势可能继续，顺势操作为主。'
+        }
+      }
+
+      // 渲染明日预测
+      function renderTomorrowAnalysis() {
+        if (!chanAnalysis) return
+
+        const { centers, strokes, latest } = chanAnalysis
+
+        // 计算关键点位
+        let resistanceStrong = Math.round(latest.close * 1.01) // 整数位压力
+        let resistanceWeak = Math.round(latest.close * 1.003) // 近压力位
+        let supportWeak = Math.round(latest.close * 0.995) // 近支撑位
+        let supportStrong = Math.round(latest.close * 0.986) // 强支撑位（约1.4%回撤）
+        let centerRange = '暂无'
+
+        if (centers.length > 0) {
+          const lastCenter = centers[centers.length - 1]
+          // 结合中枢和整数位
+          resistanceWeak = Math.max(Math.round(lastCenter.high), resistanceWeak)
+          resistanceStrong = resistanceWeak + 10 // 突破后的目标位
+          supportWeak = Math.min(Math.round(lastCenter.low), supportWeak)
+          supportStrong = Math.round(lastCenter.low * 0.99) // 中枢低点下方1%
+          centerRange = `${Math.round(lastCenter.low)} - ${Math.round(lastCenter.high)}`
+        }
+
+        document.getElementById('resistance-strong').textContent = resistanceStrong.toFixed(3)
+        document.getElementById('resistance-weak').textContent = resistanceWeak.toFixed(3)
+        document.getElementById('current-price').textContent = latest.close.toFixed(3)
+        document.getElementById('support-weak').textContent = supportWeak.toFixed(3)
+        document.getElementById('support-strong').textContent = supportStrong.toFixed(3)
+        document.getElementById('center-range').textContent = centerRange
+
+        // 走势预判
+        const forecastHtml = generateTrendForecast()
+        document.getElementById('trend-forecast').innerHTML = forecastHtml
+
+        // 操作策略
+        renderStrategyTable()
+
+        // 铁律提醒
+        renderIronRules()
+
+        // 风险提示
+        renderRiskWarnings()
+      }
+
+      // 生成走势预判
+      function generateTrendForecast() {
+        if (!chanAnalysis) return '<p>数据不足</p>'
+
+        const { centers, strokes, signals, latest } = chanAnalysis
+        const lastSignal = signals[signals.length - 1]
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        let forecast = ''
+        let probability = ''
+
+        if (!lastCenter) {
+          forecast = '当前处于趋势运行中，明日大概率延续当前趋势。'
+          probability = '上涨概率 55%，下跌概率 45%'
+        } else {
+          const position = latest.close > lastCenter.high ? 'above' : latest.close < lastCenter.low ? 'below' : 'inside'
+
+          if (position === 'above') {
+            forecast =
+              '价格位于中枢上方，明日可能回踩中枢上轨确认支撑，若支撑有效则继续上行，若跌破则可能回到中枢震荡。'
+            probability = '继续上涨 50%，回踩确认 35%，跌破回落 15%'
+          } else if (position === 'below') {
+            forecast =
+              '价格位于中枢下方，明日可能回抽中枢下轨确认压力，若压力有效则继续下行，若突破则可能回到中枢震荡。'
+            probability = '继续下跌 45%，回抽确认 35%，突破反弹 20%'
+          } else {
+            forecast = '价格在中枢内部，明日可能继续中枢震荡，关注是否出现第三类买卖点。'
+            probability = '中枢震荡 60%，向上突破 20%，向下跌破 20%'
+          }
+        }
+
+        return `
+        <h3>走势预判</h3>
+        <p>${forecast}</p>
+        
+        <div class="highlight-box">
+          <strong>概率分布：</strong>${probability}
+        </div>
+        
+        <h3>关键观察点</h3>
+        <p>1. <strong>开盘位置：</strong>关注明日开盘价相对于今日收盘价的位置，高开显示多头强势，低开显示空头占优。</p>
+        <p>2. <strong>中枢边界：</strong>${lastCenter ? `关注中枢区间 [${lastCenter.low.toFixed(2)}, ${lastCenter.high.toFixed(2)}] 的突破情况。` : '关注趋势延续性和回调力度。'}</p>
+        <p>3. <strong>成交量：</strong>关注成交量变化，放量突破更可靠，缩量反弹需谨慎。</p>
+        <p>4. <strong>缠论信号：</strong>${lastSignal ? `最近信号为${lastSignal.type.includes('buy') ? '买入' : '卖出'}信号，明日可能延续该方向。` : '暂无明确信号，等待新的买卖点形成。'}</p>
+      `
+      }
+
+      // 渲染操作策略表
+      function renderStrategyTable() {
+        if (!chanAnalysis) return
+
+        const { centers, latest } = chanAnalysis
+        let strategies = []
+
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+        const resistance = lastCenter ? Math.round(lastCenter.high) : Math.round(latest.close * 1.003)
+        const support = lastCenter ? Math.round(lastCenter.low) : Math.round(latest.close * 0.995)
+
+        if (lastCenter) {
+          // 计算合理的回踩区间（基于当前价格回撤）保留三位小数
+          const retraceLow = (latest.close * 0.995).toFixed(3) // 当前价格回撤0.5%
+          const retraceHigh = (latest.close * 0.998).toFixed(3) // 当前价格回撤0.2%
+          const buyRange = `${retraceLow}-${retraceHigh}`
+
+          // 强支撑位 = 中枢低点下方约1%
+          const strongSupport = Math.round(lastCenter.low * 0.99)
+
+          // 实战策略：强调成交量和关键点位
+          strategies = [
+            {
+              scene: '突破加仓',
+              condition: `${resistance}附近放量突破`,
+              action: '突破后回踩确认买入',
+              position: '50-60%',
+            },
+            {
+              scene: '高抛减仓',
+              condition: `${resistance}附近不放量遇阻`,
+              action: '先卖后买，不追高',
+              position: '30-40%',
+            },
+            {
+              scene: '回踩买入',
+              condition: `回踩${buyRange}区间获得支撑`,
+              action: '逢低买入，不满仓',
+              position: '40-50%',
+            },
+            {
+              scene: '跌破止损',
+              condition: `有效跌破${strongSupport}`,
+              action: '必须走，不留幻想',
+              position: '10-20%',
+            },
+            {
+              scene: '震荡操作',
+              condition: `价格在[${strongSupport}, ${resistance}]区间波动`,
+              action: '高抛低吸，最多半仓',
+              position: '30-50%',
+            },
+          ]
+        } else {
+          strategies = [
+            {
+              scene: '趋势延续',
+              condition: '价格沿趋势方向运行，回调不破前低',
+              action: '顺势操作',
+              position: '60-70%',
+            },
+            {
+              scene: '趋势反转',
+              condition: '出现顶底分型，成交量配合',
+              action: '反手操作',
+              position: '50-60%',
+            },
+            {
+              scene: '观望等待',
+              condition: '方向不明，信号混乱',
+              action: '空仓观望',
+              position: '0-20%',
+            },
+          ]
+        }
+
+        const tbody = document.getElementById('strategy-tbody')
+        tbody.innerHTML = strategies
+          .map(
+            (s) => `
+        <tr>
+          <td><strong>${s.scene}</strong></td>
+          <td>${s.condition}</td>
+          <td>${s.action}</td>
+          <td>${s.position}</td>
+        </tr>
+      `,
+          )
+          .join('')
+      }
+
+      // 渲染铁律提醒
+      function renderIronRules() {
+        if (!chanAnalysis) return
+
+        const { centers, latest } = chanAnalysis
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        if (!lastCenter) return
+
+        const resistance = lastCenter.high.toFixed(3)
+        const support = lastCenter.low.toFixed(3)
+        const strongSupport = (lastCenter.low * 0.99).toFixed(3)
+
+        // 计算合理的回踩区间（基于当前价格回撤）保留三位小数
+        const retraceLow = (latest.close * 0.995).toFixed(3) // 当前价格回撤0.5%
+        const retraceHigh = (latest.close * 0.998).toFixed(3) // 当前价格回撤0.2%
+        const buyRange = `${retraceLow}-${retraceHigh}`
+
+        const rules = [
+          `${resistance}附近若不放量 → 先卖后买，不要追高`,
+          `跌破${support}必须走 → 不要幻想，不要扛单`,
+          `跌破${strongSupport}不重仓 → 拉高不幻想，等回踩上车`,
+          `不见回踩不重仓 → 拉高不追，等回调上车`,
+          `最多半仓操作 → 大级别还没完全企稳，留足子弹`,
+        ]
+
+        const summary = `明天回踩${buyRange}就买，冲${resistance}减仓，破${strongSupport}跑路。盯紧这3个数字，按计划执行即可。`
+
+        let html = `
+        <div class="iron-rules">
+          <h3>特别操作提醒</h3>
+          <ol>
+            ${rules.map((rule, idx) => `<li> ${rule}</li>`).join('')}
+          </ol>
+          <div class="summary-box">
+            <strong>一句话总结：</strong>${summary}
+          </div>
+        </div>`
+
+        document.getElementById('iron-rules').innerHTML = html
+      }
+
+      // 渲染风险提示
+      function renderRiskWarnings() {
+        if (!chanAnalysis) return
+
+        const { centers, strokes, latest } = chanAnalysis
+        const risks = []
+
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        if (lastCenter) {
+          const range = lastCenter.high - lastCenter.low
+
+          if (latest.close > lastCenter.high + range * 0.5) {
+            risks.push('价格远离中枢，存在回调风险，不宜追高')
+          }
+          if (latest.close < lastCenter.low - range * 0.5) {
+            risks.push('价格超跌，可能存在反弹机会，但趋势仍弱')
+          }
+        }
+
+        if (strokes.length >= 3) {
+          const lastThree = strokes.slice(-3)
+          if (lastThree.every((s) => s.direction === 'up')) {
+            risks.push('连续向上笔，短期涨幅过大，注意获利回吐')
+          }
+          if (lastThree.every((s) => s.direction === 'down')) {
+            risks.push('连续向下笔，短期跌幅过大，注意超跌反弹')
+          }
+        }
+
+        risks.push('以上分析仅供参考，不构成投资建议')
+        risks.push('股市有风险，投资需谨慎，请根据自身情况决策')
+        risks.push('建议结合基本面、政策面和市场情绪综合判断')
+
+        document.getElementById('risk-list').innerHTML = risks.map((r) => `<li>${r}</li>`).join('')
+      }
+
+      // 渲染复盘总结
+      function renderSummary() {
+        if (!chanAnalysis) return
+
+        const { strokes, centers, signals, latest } = chanAnalysis
+        const stockName =
+          document.getElementById('stock-selector')?.options[document.getElementById('stock-selector')?.selectedIndex]
+            ?.text || '当前股票'
+
+        // 今日总结
+        const summaryHtml = `
+        <h3>盘面回顾</h3>
+        <p>今日${stockName}收于 ${latest.close.toFixed(2)} 点，
+        ${latest.close > (currentData[currentData.length - 2]?.close || 0) ? '上涨' : '下跌'} 
+        ${Math.abs(latest.close - (currentData[currentData.length - 2]?.close || latest.close)).toFixed(2)} 点。</p>
+        
+        <h3>缠论视角</h3>
+        <p>从缠论结构看，今日形成 ${strokes.length} 笔，${centers.length} 个中枢。
+        ${centers.length > 0 && centers[centers.length - 1] ? `最新中枢 [${centers[centers.length - 1].low.toFixed(2)}, ${centers[centers.length - 1].high.toFixed(2)}]` : '暂无中枢形成'}。
+        ${signals.length > 0 ? `出现 ${signals.length} 个信号，最新信号为 ${signals[signals.length - 1].signalName}。` : '暂无明确信号。'}</p>
+        
+        <h3>操作回顾</h3>
+        <p>${generateOperationReview()}</p>
+        
+        <div class="highlight-box">
+          <strong>今日要点：</strong>${generateTodayKeypoint()}
+        </div>
+      `
+        document.getElementById('daily-summary').innerHTML = summaryHtml
+
+        // 结构演变
+        document.getElementById('structure-evolution').innerHTML = generateStructureEvolution()
+
+        // 交易心得
+        document.getElementById('today-keypoints').textContent = generateTodayKeypoint()
+        document.getElementById('tomorrow-focus').textContent = generateTomorrowFocus()
+      }
+
+      // 生成操作回顾
+      function generateOperationReview() {
+        if (!chanAnalysis) return '暂无操作记录'
+
+        const { signals } = chanAnalysis
+        const todaySignals = signals.slice(-3)
+
+        if (todaySignals.length === 0) {
+          return '今日未出现明确买卖点，保持观望为主。在缠论体系中，没有信号就是最好的信号，避免盲目操作。'
+        }
+
+        const lastSignal = todaySignals[todaySignals.length - 1]
+        const action = lastSignal.type.includes('buy') ? '买入' : '卖出'
+
+        return `今日出现${todaySignals.length}个信号，最新为${action}信号（${lastSignal.signalName}）。
+      按照缠论操作原则，在${lastSignal.executePrice.toFixed(2)}附近${action}，
+      止损位设在${(lastSignal.executePrice * (lastSignal.type.includes('buy') ? 0.98 : 1.02)).toFixed(2)}。`
+      }
+
+      // 生成今日要点
+      function generateTodayKeypoint() {
+        if (!chanAnalysis) return ''
+
+        const { centers, strokes, latest } = chanAnalysis
+
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        if (!lastCenter) {
+          return '趋势行情中，顺势操作，严格止损。'
+        }
+
+        const position = latest.close > lastCenter.high ? 'above' : latest.close < lastCenter.low ? 'below' : 'inside'
+
+        const keypoints = {
+          above: '突破中枢后关注回踩确认，确认有效可加仓。',
+          below: '跌破中枢后关注回抽确认，确认有效需减仓。',
+          inside: '中枢震荡中，高抛低吸，等待方向选择。',
+        }
+
+        return keypoints[position]
+      }
+
+      // 生成明日关注
+      function generateTomorrowFocus() {
+        if (!chanAnalysis) return ''
+
+        const { centers, latest } = chanAnalysis
+
+        const lastCenter = centers.length > 0 ? centers[centers.length - 1] : null
+
+        if (!lastCenter) {
+          return '关注趋势延续性和成交量变化。'
+        }
+
+        return `关注中枢边界 ${lastCenter.low.toFixed(2)} 和 ${lastCenter.high.toFixed(2)} 的突破情况，
+      以及成交量是否配合。`
+      }
+
+      // 生成结构演变
+      function generateStructureEvolution() {
+        if (!chanAnalysis) return '<p>数据不足</p>'
+
+        const { centers, strokes } = chanAnalysis
+
+        let evolution = '<h3>中枢演变过程</h3>'
+
+        if (centers.length === 0) {
+          evolution += '<p>当前处于趋势运行阶段，尚未形成中枢。趋势的力度较强，建议顺势操作。</p>'
+        } else {
+          evolution += '<p>中枢形成过程：</p><ul>'
+          centers.forEach((center, idx) => {
+            evolution += `<li>第${idx + 1}个中枢：区间[${center.low.toFixed(2)}, ${center.high.toFixed(2)}]，
+          包含${center.strokes?.length || 0}笔</li>`
+          })
+          evolution += '</ul>'
+        }
+
+        evolution += '<h3>笔的演变</h3><p>'
+        if (strokes.length >= 3) {
+          const directions = strokes
+            .slice(-5)
+            .map((s) => (s.direction === 'up' ? '↑' : '↓'))
+            .join(' ')
+          evolution += `最近5笔方向：${directions}。`
+        }
+        evolution += `总共形成${strokes.length}笔，当前笔方向为${strokes[strokes.length - 1]?.direction === 'up' ? '向上' : '向下'}。</p>`
+
+        return evolution
+      }
+
+      // 切换标签页
+      window.switchTab = function (tabName) {
+        // 更新按钮状态
+        document.querySelectorAll('.nav-tab').forEach((btn) => {
+          btn.classList.remove('active')
+        })
+        event.target.classList.add('active')
+
+        // 更新内容显示
+        document.querySelectorAll('.content-section').forEach((section) => {
+          section.classList.remove('active')
+        })
+        document.getElementById(tabName + '-section').classList.add('active')
+      }
+
+      // 显示错误
+      function showError(message) {
+        document.querySelectorAll('.analysis-content').forEach((el) => {
+          el.innerHTML = `<div class="highlight-box" style="border-color: var(--sell); background: rgba(220, 38, 38, 0.05);">
+          <strong>错误：</strong>${message}
+        </div>`
+        })
+      }
+
+      // 启动
+      init()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1139 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETF筛选报告</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    h2 {
+      color: #555;
+      margin-top: 30px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+    .positive {
+      color: red;
+    }
+    .negative {
+      color: green;
+    }
+    .price-tag {
+      font-weight: bold;
+      color: #333;
+    }
+    .report-section {
+      margin-bottom: 40px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ETF筛选报告</h1>
+  <p style="text-align: center; color: #666;">更新时间: 2026/4/16 下午4:20:53</p>
+  
+  <!-- 热门ETF -->
+  <div class="report-section">
+    <h2>热门ETF</h2>
+    <table>
+      <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>价格</th>
+        <th>涨幅</th>
+        <th>开盘</th>
+        <th>最高</th>
+        <th>最低</th>
+        <th>成交量</th>
+        <th>成交额</th>
+      </tr>
+      <tr>
+        <td>159967</td>
+        <td>创业板成长ETF华夏</td>
+        <td class="price-tag">0.08</td>
+        <td class="positive">4.41%</td>
+        <td>0.07</td>
+        <td>0.08</td>
+        <td>0.07</td>
+        <td>724.31万</td>
+        <td>53996.52万</td>
+      </tr>
+      <tr>
+        <td>515880</td>
+        <td>通信ETF国泰</td>
+        <td class="price-tag">0.13</td>
+        <td class="positive">3.61%</td>
+        <td>0.12</td>
+        <td>0.13</td>
+        <td>0.12</td>
+        <td>1260.33万</td>
+        <td>157092.96万</td>
+      </tr>
+      <tr>
+        <td>159949</td>
+        <td>创业板50ETF华安</td>
+        <td class="price-tag">0.17</td>
+        <td class="positive">3.40%</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>1032.12万</td>
+        <td>176714.94万</td>
+      </tr>
+      <tr>
+        <td>159952</td>
+        <td>创业板ETF广发</td>
+        <td class="price-tag">0.22</td>
+        <td class="positive">3.29%</td>
+        <td>0.21</td>
+        <td>0.22</td>
+        <td>0.21</td>
+        <td>153.12万</td>
+        <td>33312.57万</td>
+      </tr>
+      <tr>
+        <td>159915</td>
+        <td>创业板ETF易方达</td>
+        <td class="price-tag">0.36</td>
+        <td class="positive">3.22%</td>
+        <td>0.35</td>
+        <td>0.36</td>
+        <td>0.35</td>
+        <td>1479.65万</td>
+        <td>529808.08万</td>
+      </tr>
+      <tr>
+        <td>159958</td>
+        <td>创业板ETF工银</td>
+        <td class="price-tag">0.22</td>
+        <td class="positive">3.16%</td>
+        <td>0.21</td>
+        <td>0.22</td>
+        <td>0.21</td>
+        <td>8.10万</td>
+        <td>1750.99万</td>
+      </tr>
+      <tr>
+        <td>515050</td>
+        <td>通信ETF华夏</td>
+        <td class="price-tag">0.28</td>
+        <td class="positive">3.01%</td>
+        <td>0.27</td>
+        <td>0.28</td>
+        <td>0.27</td>
+        <td>168.47万</td>
+        <td>45860.92万</td>
+      </tr>
+      <tr>
+        <td>588380</td>
+        <td>科创创业ETF富国</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.75%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>95.06万</td>
+        <td>9861.63万</td>
+      </tr>
+      <tr>
+        <td>588330</td>
+        <td>双创50ETF华宝</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.67%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>63.13万</td>
+        <td>6500.55万</td>
+      </tr>
+      <tr>
+        <td>512980</td>
+        <td>传媒ETF广发</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.58%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>258.96万</td>
+        <td>26497.25万</td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- 技术指标ETF -->
+  <div class="report-section">
+    <h2>技术指标ETF</h2>
+    <table>
+      <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>价格</th>
+        <th>涨幅</th>
+        <th>开盘</th>
+        <th>最高</th>
+        <th>最低</th>
+        <th>成交量</th>
+        <th>成交额</th>
+      </tr>
+      <tr>
+        <td>510050</td>
+        <td>上证50ETF华夏</td>
+        <td class="price-tag">0.30</td>
+        <td class="positive">0.20%</td>
+        <td>0.30</td>
+        <td>0.30</td>
+        <td>0.30</td>
+        <td>521.76万</td>
+        <td>157319.67万</td>
+      </tr>
+      <tr>
+        <td>510300</td>
+        <td>沪深300ETF华泰柏瑞</td>
+        <td class="price-tag">0.47</td>
+        <td class="positive">1.11%</td>
+        <td>0.47</td>
+        <td>0.47</td>
+        <td>0.47</td>
+        <td>853.23万</td>
+        <td>403695.18万</td>
+      </tr>
+      <tr>
+        <td>510500</td>
+        <td>中证500ETF南方</td>
+        <td class="price-tag">0.83</td>
+        <td class="positive">1.75%</td>
+        <td>0.81</td>
+        <td>0.83</td>
+        <td>0.81</td>
+        <td>487.97万</td>
+        <td>400932.41万</td>
+      </tr>
+      <tr>
+        <td>510880</td>
+        <td>红利ETF华泰柏瑞</td>
+        <td class="price-tag">0.32</td>
+        <td class="positive">0.12%</td>
+        <td>0.32</td>
+        <td>0.33</td>
+        <td>0.32</td>
+        <td>94.22万</td>
+        <td>30540.91万</td>
+      </tr>
+      <tr>
+        <td>511660</td>
+        <td>货币ETF建信</td>
+        <td class="price-tag">10.00</td>
+        <td class="positive">0.00%</td>
+        <td>10.00</td>
+        <td>10.00</td>
+        <td>10.00</td>
+        <td>11.55万</td>
+        <td>115538.55万</td>
+      </tr>
+      <tr>
+        <td>511380</td>
+        <td>可转债ETF博时</td>
+        <td class="price-tag">1.43</td>
+        <td class="positive">1.67%</td>
+        <td>1.41</td>
+        <td>1.43</td>
+        <td>1.41</td>
+        <td>808.54万</td>
+        <td>1149353.17万</td>
+      </tr>
+      <tr>
+        <td>510900</td>
+        <td>恒生中国企业ETF易方达</td>
+        <td class="price-tag">0.11</td>
+        <td class="positive">1.85%</td>
+        <td>0.11</td>
+        <td>0.11</td>
+        <td>0.11</td>
+        <td>114.52万</td>
+        <td>12517.38万</td>
+      </tr>
+      <tr>
+        <td>512100</td>
+        <td>中证1000ETF南方</td>
+        <td class="price-tag">0.33</td>
+        <td class="positive">1.60%</td>
+        <td>0.33</td>
+        <td>0.33</td>
+        <td>0.32</td>
+        <td>637.60万</td>
+        <td>209338.35万</td>
+      </tr>
+      <tr>
+        <td>512200</td>
+        <td>房地产ETF南方</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">0.29%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>80.87万</td>
+        <td>11129.17万</td>
+      </tr>
+      <tr>
+        <td>512480</td>
+        <td>半导体ETF国联安</td>
+        <td class="price-tag">0.16</td>
+        <td class="positive">1.38%</td>
+        <td>0.16</td>
+        <td>0.16</td>
+        <td>0.16</td>
+        <td>687.83万</td>
+        <td>110611.77万</td>
+      </tr>
+      <tr>
+        <td>512690</td>
+        <td>酒ETF鹏华</td>
+        <td class="price-tag">0.05</td>
+        <td class="positive">0.20%</td>
+        <td>0.05</td>
+        <td>0.05</td>
+        <td>0.05</td>
+        <td>1009.97万</td>
+        <td>49830.05万</td>
+      </tr>
+      <tr>
+        <td>512760</td>
+        <td>芯片ETF国泰</td>
+        <td class="price-tag">0.09</td>
+        <td class="positive">1.27%</td>
+        <td>0.09</td>
+        <td>0.09</td>
+        <td>0.09</td>
+        <td>239.78万</td>
+        <td>20866.67万</td>
+      </tr>
+      <tr>
+        <td>512980</td>
+        <td>传媒ETF广发</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.58%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>258.96万</td>
+        <td>26497.25万</td>
+      </tr>
+      <tr>
+        <td>513100</td>
+        <td>纳指ETF国泰</td>
+        <td class="price-tag">0.19</td>
+        <td class="positive">2.31%</td>
+        <td>0.19</td>
+        <td>0.19</td>
+        <td>0.19</td>
+        <td>321.94万</td>
+        <td>61268.79万</td>
+      </tr>
+      <tr>
+        <td>513500</td>
+        <td>标普500ETF博时</td>
+        <td class="price-tag">0.24</td>
+        <td class="positive">1.20%</td>
+        <td>0.24</td>
+        <td>0.24</td>
+        <td>0.24</td>
+        <td>144.50万</td>
+        <td>34113.63万</td>
+      </tr>
+      <tr>
+        <td>515050</td>
+        <td>通信ETF华夏</td>
+        <td class="price-tag">0.28</td>
+        <td class="positive">3.01%</td>
+        <td>0.27</td>
+        <td>0.28</td>
+        <td>0.27</td>
+        <td>168.47万</td>
+        <td>45860.92万</td>
+      </tr>
+      <tr>
+        <td>515180</td>
+        <td>红利ETF易方达</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">0.28%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>183.02万</td>
+        <td>26157.07万</td>
+      </tr>
+      <tr>
+        <td>515220</td>
+        <td>煤炭ETF国泰</td>
+        <td class="price-tag">0.12</td>
+        <td class="positive">0.25%</td>
+        <td>0.12</td>
+        <td>0.12</td>
+        <td>0.12</td>
+        <td>371.34万</td>
+        <td>44343.91万</td>
+      </tr>
+      <tr>
+        <td>515450</td>
+        <td>红利低波50ETF南方</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">0.14%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>80.43万</td>
+        <td>11462.69万</td>
+      </tr>
+      <tr>
+        <td>515790</td>
+        <td>光伏ETF华泰柏瑞</td>
+        <td class="price-tag">0.11</td>
+        <td class="positive">1.13%</td>
+        <td>0.11</td>
+        <td>0.11</td>
+        <td>0.10</td>
+        <td>365.00万</td>
+        <td>38792.03万</td>
+      </tr>
+      <tr>
+        <td>515880</td>
+        <td>通信ETF国泰</td>
+        <td class="price-tag">0.13</td>
+        <td class="positive">3.61%</td>
+        <td>0.12</td>
+        <td>0.13</td>
+        <td>0.12</td>
+        <td>1260.33万</td>
+        <td>157092.96万</td>
+      </tr>
+      <tr>
+        <td>516010</td>
+        <td>游戏ETF国泰</td>
+        <td class="price-tag">0.13</td>
+        <td class="positive">2.29%</td>
+        <td>0.13</td>
+        <td>0.13</td>
+        <td>0.13</td>
+        <td>120.72万</td>
+        <td>15984.89万</td>
+      </tr>
+      <tr>
+        <td>516160</td>
+        <td>新能源ETF南方</td>
+        <td class="price-tag">0.32</td>
+        <td class="positive">2.44%</td>
+        <td>0.31</td>
+        <td>0.32</td>
+        <td>0.31</td>
+        <td>183.56万</td>
+        <td>58359.56万</td>
+      </tr>
+      <tr>
+        <td>516970</td>
+        <td>基建ETF广发</td>
+        <td class="price-tag">0.12</td>
+        <td class="positive">0.66%</td>
+        <td>0.12</td>
+        <td>0.12</td>
+        <td>0.12</td>
+        <td>29.99万</td>
+        <td>3654.19万</td>
+      </tr>
+      <tr>
+        <td>517080</td>
+        <td>沪港深500ETF汇添富</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">1.19%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>2.30万</td>
+        <td>233.58万</td>
+      </tr>
+      <tr>
+        <td>518880</td>
+        <td>黄金ETF华安</td>
+        <td class="price-tag">1.01</td>
+        <td class="positive">0.33%</td>
+        <td>1.01</td>
+        <td>1.01</td>
+        <td>1.01</td>
+        <td>376.24万</td>
+        <td>379636.32万</td>
+      </tr>
+      <tr>
+        <td>560850</td>
+        <td>信创ETF汇添富</td>
+        <td class="price-tag">0.15</td>
+        <td class="positive">1.52%</td>
+        <td>0.14</td>
+        <td>0.15</td>
+        <td>0.14</td>
+        <td>3.64万</td>
+        <td>532.18万</td>
+      </tr>
+      <tr>
+        <td>588000</td>
+        <td>科创50ETF华夏</td>
+        <td class="price-tag">0.15</td>
+        <td class="positive">1.08%</td>
+        <td>0.15</td>
+        <td>0.15</td>
+        <td>0.15</td>
+        <td>2272.50万</td>
+        <td>338625.00万</td>
+      </tr>
+      <tr>
+        <td>588200</td>
+        <td>科创芯片ETF嘉实</td>
+        <td class="price-tag">0.27</td>
+        <td class="positive">1.17%</td>
+        <td>0.27</td>
+        <td>0.27</td>
+        <td>0.26</td>
+        <td>843.11万</td>
+        <td>224177.59万</td>
+      </tr>
+      <tr>
+        <td>588330</td>
+        <td>双创50ETF华宝</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.67%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>63.13万</td>
+        <td>6500.55万</td>
+      </tr>
+      <tr>
+        <td>588380</td>
+        <td>科创创业ETF富国</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.75%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>95.06万</td>
+        <td>9861.63万</td>
+      </tr>
+      <tr>
+        <td>159919</td>
+        <td>沪深300ETF嘉实</td>
+        <td class="price-tag">0.49</td>
+        <td class="positive">1.04%</td>
+        <td>0.49</td>
+        <td>0.49</td>
+        <td>0.49</td>
+        <td>154.02万</td>
+        <td>75979.12万</td>
+      </tr>
+      <tr>
+        <td>159949</td>
+        <td>创业板50ETF华安</td>
+        <td class="price-tag">0.17</td>
+        <td class="positive">3.40%</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>1032.12万</td>
+        <td>176714.94万</td>
+      </tr>
+      <tr>
+        <td>159928</td>
+        <td>消费ETF汇添富</td>
+        <td class="price-tag">0.08</td>
+        <td class="positive">0.13%</td>
+        <td>0.08</td>
+        <td>0.08</td>
+        <td>0.07</td>
+        <td>339.46万</td>
+        <td>25512.55万</td>
+      </tr>
+      <tr>
+        <td>159938</td>
+        <td>医药ETF广发</td>
+        <td class="price-tag">0.07</td>
+        <td class="positive">0.00%</td>
+        <td>0.07</td>
+        <td>0.07</td>
+        <td>0.07</td>
+        <td>95.84万</td>
+        <td>6278.64万</td>
+      </tr>
+      <tr>
+        <td>159941</td>
+        <td>纳指ETF广发</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">2.10%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>821.27万</td>
+        <td>115710.93万</td>
+      </tr>
+      <tr>
+        <td>159952</td>
+        <td>创业板ETF广发</td>
+        <td class="price-tag">0.22</td>
+        <td class="positive">3.29%</td>
+        <td>0.21</td>
+        <td>0.22</td>
+        <td>0.21</td>
+        <td>153.12万</td>
+        <td>33312.57万</td>
+      </tr>
+      <tr>
+        <td>159958</td>
+        <td>创业板ETF工银</td>
+        <td class="price-tag">0.22</td>
+        <td class="positive">3.16%</td>
+        <td>0.21</td>
+        <td>0.22</td>
+        <td>0.21</td>
+        <td>8.10万</td>
+        <td>1750.99万</td>
+      </tr>
+      <tr>
+        <td>159967</td>
+        <td>创业板成长ETF华夏</td>
+        <td class="price-tag">0.08</td>
+        <td class="positive">4.41%</td>
+        <td>0.07</td>
+        <td>0.08</td>
+        <td>0.07</td>
+        <td>724.31万</td>
+        <td>53996.52万</td>
+      </tr>
+      <tr>
+        <td>159966</td>
+        <td>创业板价值ETF华夏</td>
+        <td class="price-tag">0.06</td>
+        <td class="positive">1.70%</td>
+        <td>0.06</td>
+        <td>0.06</td>
+        <td>0.06</td>
+        <td>9.91万</td>
+        <td>590.44万</td>
+      </tr>
+      <tr>
+        <td>159995</td>
+        <td>芯片ETF华夏</td>
+        <td class="price-tag">0.18</td>
+        <td class="positive">1.16%</td>
+        <td>0.18</td>
+        <td>0.18</td>
+        <td>0.18</td>
+        <td>345.23万</td>
+        <td>62893.40万</td>
+      </tr>
+      <tr>
+        <td>159805</td>
+        <td>传媒ETF鹏华</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">2.42%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>30.60万</td>
+        <td>4364.95万</td>
+      </tr>
+      <tr>
+        <td>159825</td>
+        <td>农业ETF富国</td>
+        <td class="price-tag">0.09</td>
+        <td class="positive">1.06%</td>
+        <td>0.09</td>
+        <td>0.09</td>
+        <td>0.08</td>
+        <td>150.51万</td>
+        <td>12892.60万</td>
+      </tr>
+      <tr>
+        <td>159901</td>
+        <td>深证100ETF易方达</td>
+        <td class="price-tag">0.37</td>
+        <td class="positive">2.24%</td>
+        <td>0.37</td>
+        <td>0.37</td>
+        <td>0.37</td>
+        <td>91.99万</td>
+        <td>34221.76万</td>
+      </tr>
+      <tr>
+        <td>159915</td>
+        <td>创业板ETF易方达</td>
+        <td class="price-tag">0.36</td>
+        <td class="positive">3.22%</td>
+        <td>0.35</td>
+        <td>0.36</td>
+        <td>0.35</td>
+        <td>1479.65万</td>
+        <td>529808.08万</td>
+      </tr>
+      <tr>
+        <td>159922</td>
+        <td>中证500ETF嘉实</td>
+        <td class="price-tag">0.33</td>
+        <td class="positive">1.61%</td>
+        <td>0.32</td>
+        <td>0.33</td>
+        <td>0.32</td>
+        <td>200.54万</td>
+        <td>65513.86万</td>
+      </tr>
+      <tr>
+        <td>159934</td>
+        <td>黄金ETF易方达</td>
+        <td class="price-tag">1.05</td>
+        <td class="positive">0.36%</td>
+        <td>1.05</td>
+        <td>1.06</td>
+        <td>1.05</td>
+        <td>109.66万</td>
+        <td>115589.56万</td>
+      </tr>
+      <tr>
+        <td>159937</td>
+        <td>黄金ETF博时</td>
+        <td class="price-tag">1.01</td>
+        <td class="positive">0.30%</td>
+        <td>1.01</td>
+        <td>1.01</td>
+        <td>1.00</td>
+        <td>68.36万</td>
+        <td>68809.43万</td>
+      </tr>
+      <tr>
+        <td>159939</td>
+        <td>信息技术ETF广发</td>
+        <td class="price-tag">0.09</td>
+        <td class="positive">1.61%</td>
+        <td>0.09</td>
+        <td>0.09</td>
+        <td>0.09</td>
+        <td>29.89万</td>
+        <td>2805.80万</td>
+      </tr>
+      <tr>
+        <td>159944</td>
+        <td>材料ETF广发</td>
+        <td class="price-tag">0.17</td>
+        <td class="positive">2.28%</td>
+        <td>0.16</td>
+        <td>0.17</td>
+        <td>0.16</td>
+        <td>10.21万</td>
+        <td>1684.26万</td>
+      </tr>
+      <tr>
+        <td>159945</td>
+        <td>能源ETF广发</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">0.36%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>5.25万</td>
+        <td>719.38万</td>
+      </tr>
+      <tr>
+        <td>159972</td>
+        <td>5年地方债ETF鹏华</td>
+        <td class="price-tag">11.84</td>
+        <td class="positive">0.05%</td>
+        <td>11.83</td>
+        <td>11.84</td>
+        <td>11.83</td>
+        <td>18.71万</td>
+        <td>221394.93万</td>
+      </tr>
+      <tr>
+        <td>159974</td>
+        <td>央企创新ETF富国</td>
+        <td class="price-tag">0.19</td>
+        <td class="positive">0.75%</td>
+        <td>0.19</td>
+        <td>0.19</td>
+        <td>0.19</td>
+        <td>0.74万</td>
+        <td>137.85万</td>
+      </tr>
+      <tr>
+        <td>159985</td>
+        <td>豆粕ETF华夏</td>
+        <td class="price-tag">0.21</td>
+        <td class="positive">0.67%</td>
+        <td>0.21</td>
+        <td>0.21</td>
+        <td>0.21</td>
+        <td>101.59万</td>
+        <td>21427.08万</td>
+      </tr>
+      <tr>
+        <td>159996</td>
+        <td>家电ETF国泰</td>
+        <td class="price-tag">0.15</td>
+        <td class="positive">0.69%</td>
+        <td>0.15</td>
+        <td>0.15</td>
+        <td>0.15</td>
+        <td>36.68万</td>
+        <td>5352.39万</td>
+      </tr>
+      <tr>
+        <td>159997</td>
+        <td>电子ETF天弘</td>
+        <td class="price-tag">0.18</td>
+        <td class="positive">1.44%</td>
+        <td>0.17</td>
+        <td>0.18</td>
+        <td>0.17</td>
+        <td>26.01万</td>
+        <td>4521.19万</td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- 趋势追踪ETF -->
+  <div class="report-section">
+    <h2>趋势追踪ETF</h2>
+    <table>
+      <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>价格</th>
+        <th>涨幅</th>
+        <th>开盘</th>
+        <th>最高</th>
+        <th>最低</th>
+        <th>成交量</th>
+        <th>成交额</th>
+      </tr>
+      <tr>
+        <td>515880</td>
+        <td>通信ETF国泰</td>
+        <td class="price-tag">0.13</td>
+        <td class="positive">3.61%</td>
+        <td>0.12</td>
+        <td>0.13</td>
+        <td>0.12</td>
+        <td>1260.33万</td>
+        <td>157092.96万</td>
+      </tr>
+      <tr>
+        <td>159949</td>
+        <td>创业板50ETF华安</td>
+        <td class="price-tag">0.17</td>
+        <td class="positive">3.40%</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>1032.12万</td>
+        <td>176714.94万</td>
+      </tr>
+      <tr>
+        <td>159915</td>
+        <td>创业板ETF易方达</td>
+        <td class="price-tag">0.36</td>
+        <td class="positive">3.22%</td>
+        <td>0.35</td>
+        <td>0.36</td>
+        <td>0.35</td>
+        <td>1479.65万</td>
+        <td>529808.08万</td>
+      </tr>
+      <tr>
+        <td>588000</td>
+        <td>科创50ETF华夏</td>
+        <td class="price-tag">0.15</td>
+        <td class="positive">1.08%</td>
+        <td>0.15</td>
+        <td>0.15</td>
+        <td>0.15</td>
+        <td>2272.50万</td>
+        <td>338625.00万</td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- 行业轮动ETF -->
+  <div class="report-section">
+    <h2>行业轮动ETF</h2>
+    <table>
+      <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>价格</th>
+        <th>涨幅</th>
+        <th>开盘</th>
+        <th>最高</th>
+        <th>最低</th>
+        <th>成交量</th>
+        <th>成交额</th>
+      </tr>
+      <tr>
+        <td>159967</td>
+        <td>创业板成长ETF华夏</td>
+        <td class="price-tag">0.08</td>
+        <td class="positive">4.41%</td>
+        <td>0.07</td>
+        <td>0.08</td>
+        <td>0.07</td>
+        <td>724.31万</td>
+        <td>53996.52万</td>
+      </tr>
+      <tr>
+        <td>515880</td>
+        <td>通信ETF国泰</td>
+        <td class="price-tag">0.13</td>
+        <td class="positive">3.61%</td>
+        <td>0.12</td>
+        <td>0.13</td>
+        <td>0.12</td>
+        <td>1260.33万</td>
+        <td>157092.96万</td>
+      </tr>
+      <tr>
+        <td>159949</td>
+        <td>创业板50ETF华安</td>
+        <td class="price-tag">0.17</td>
+        <td class="positive">3.40%</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>0.17</td>
+        <td>1032.12万</td>
+        <td>176714.94万</td>
+      </tr>
+      <tr>
+        <td>159952</td>
+        <td>创业板ETF广发</td>
+        <td class="price-tag">0.22</td>
+        <td class="positive">3.29%</td>
+        <td>0.21</td>
+        <td>0.22</td>
+        <td>0.21</td>
+        <td>153.12万</td>
+        <td>33312.57万</td>
+      </tr>
+      <tr>
+        <td>159915</td>
+        <td>创业板ETF易方达</td>
+        <td class="price-tag">0.36</td>
+        <td class="positive">3.22%</td>
+        <td>0.35</td>
+        <td>0.36</td>
+        <td>0.35</td>
+        <td>1479.65万</td>
+        <td>529808.08万</td>
+      </tr>
+      <tr>
+        <td>159958</td>
+        <td>创业板ETF工银</td>
+        <td class="price-tag">0.22</td>
+        <td class="positive">3.16%</td>
+        <td>0.21</td>
+        <td>0.22</td>
+        <td>0.21</td>
+        <td>8.10万</td>
+        <td>1750.99万</td>
+      </tr>
+      <tr>
+        <td>515050</td>
+        <td>通信ETF华夏</td>
+        <td class="price-tag">0.28</td>
+        <td class="positive">3.01%</td>
+        <td>0.27</td>
+        <td>0.28</td>
+        <td>0.27</td>
+        <td>168.47万</td>
+        <td>45860.92万</td>
+      </tr>
+      <tr>
+        <td>588380</td>
+        <td>科创创业ETF富国</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.75%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>95.06万</td>
+        <td>9861.63万</td>
+      </tr>
+      <tr>
+        <td>588330</td>
+        <td>双创50ETF华宝</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.67%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>63.13万</td>
+        <td>6500.55万</td>
+      </tr>
+      <tr>
+        <td>512980</td>
+        <td>传媒ETF广发</td>
+        <td class="price-tag">0.10</td>
+        <td class="positive">2.58%</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>0.10</td>
+        <td>258.96万</td>
+        <td>26497.25万</td>
+      </tr>
+      <tr>
+        <td>516160</td>
+        <td>新能源ETF南方</td>
+        <td class="price-tag">0.32</td>
+        <td class="positive">2.44%</td>
+        <td>0.31</td>
+        <td>0.32</td>
+        <td>0.31</td>
+        <td>183.56万</td>
+        <td>58359.56万</td>
+      </tr>
+      <tr>
+        <td>159805</td>
+        <td>传媒ETF鹏华</td>
+        <td class="price-tag">0.14</td>
+        <td class="positive">2.42%</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>0.14</td>
+        <td>30.60万</td>
+        <td>4364.95万</td>
+      </tr>
+      <tr>
+        <td>513100</td>
+        <td>纳指ETF国泰</td>
+        <td class="price-tag">0.19</td>
+        <td class="positive">2.31%</td>
+        <td>0.19</td>
+        <td>0.19</td>
+        <td>0.19</td>
+        <td>321.94万</td>
+        <td>61268.79万</td>
+      </tr>
+      <tr>
+        <td>516010</td>
+        <td>游戏ETF国泰</td>
+        <td class="price-tag">0.13</td>
+        <td class="positive">2.29%</td>
+        <td>0.13</td>
+        <td>0.13</td>
+        <td>0.13</td>
+        <td>120.72万</td>
+        <td>15984.89万</td>
+      </tr>
+      <tr>
+        <td>159944</td>
+        <td>材料ETF广发</td>
+        <td class="price-tag">0.17</td>
+        <td class="positive">2.28%</td>
+        <td>0.16</td>
+        <td>0.17</td>
+        <td>0.16</td>
+        <td>10.21万</td>
+        <td>1684.26万</td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- 热门板块 -->
+  <div class="report-section">
+    <h2>热门板块</h2>
+    <table>
+      <tr>
+        <th>板块代码</th>
+        <th>板块名称</th>
+        <th>涨幅</th>
+        <th>最新价</th>
+        <th>成交额</th>
+        <th>换手率</th>
+      </tr>
+      <tr>
+        <td>BK0475</td>
+        <td>半导体</td>
+        <td class="positive">2.50%</td>
+        <td>1000.00</td>
+        <td>1000000.00万</td>
+        <td>2.00%</td>
+      </tr>
+      <tr>
+        <td>BK0447</td>
+        <td>新能源</td>
+        <td class="positive">2.00%</td>
+        <td>1000.00</td>
+        <td>800000.00万</td>
+        <td>1.80%</td>
+      </tr>
+      <tr>
+        <td>BK0736</td>
+        <td>医药制造</td>
+        <td class="positive">1.50%</td>
+        <td>1000.00</td>
+        <td>600000.00万</td>
+        <td>1.50%</td>
+      </tr>
+      <tr>
+        <td>BK0438</td>
+        <td>金融服务</td>
+        <td class="positive">1.20%</td>
+        <td>1000.00</td>
+        <td>500000.00万</td>
+        <td>1.20%</td>
+      </tr>
+      <tr>
+        <td>BK0987</td>
+        <td>消费零售</td>
+        <td class="positive">1.00%</td>
+        <td>1000.00</td>
+        <td>400000.00万</td>
+        <td>1.00%</td>
+      </tr>
+    </table>
+  </div>
+  
+  <div class="footer">
+    <p>ETF筛选策略报告 - 基于实时市场数据</p>
+  </div>
+</body>
+</html>
