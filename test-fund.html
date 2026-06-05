@@ -317,6 +317,7 @@
       // 指数配置
       let CURRENT_INDEX = { symbol: 'sh510300', name: '沪深300' }
       let testDate = ['2025-08-08', ''] // 测试时间范围   数组第一个开始时间，第二个参数没有则默认使用当天时间
+      let comparisonChart = null // 策略对比图表实例
 
       // 计算30天前的日期
       function getDateMinus30Days(dateStr) {
@@ -325,7 +326,7 @@
         return date.toISOString().split('T')[0]
       }
 
-      const STRATEGY_PARAMS = {
+      let STRATEGY_PARAMS = {
         INITIAL_CASH: 100000,
         START_DATE: getDateMinus30Days(testDate[0]), // 提前30天获取数据，用于计算移动平均线
         TRADE_START_DATE: testDate[0], // 实际交易开始日期
@@ -3082,6 +3083,8 @@
 
         CURRENT_INDEX = { symbol: code, name: name }
         testDate = [startDate, endDate || '']
+        STRATEGY_PARAMS.START_DATE = getDateMinus30Days(testDate[0])
+        STRATEGY_PARAMS.TRADE_START_DATE = testDate[0]
         main()
       }
 
@@ -3248,6 +3251,9 @@
 
           // 绘制策略对比图表
           const ctx = document.getElementById('strategy-comparison-chart').getContext('2d')
+          if (comparisonChart) {
+            comparisonChart.destroy()
+          }
 
           // 准备图表数据
           const dates = results[0].positionHistory.map((p) => p.date)
@@ -3298,7 +3304,7 @@
             tension: 0.1,
           })
 
-          new Chart(ctx, {
+          comparisonChart = new Chart(ctx, {
             type: 'line',
             data: {
               labels: dates,
