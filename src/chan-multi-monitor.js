@@ -531,8 +531,8 @@ function renderTradeTable (results) {
     }
   }
 
-  // 按日期排序
-  allRecords.sort((a, b) => new Date(a.executeDate) - new Date(b.executeDate))
+  // 按日期倒序排序（与单个缠论逻辑一致）
+  allRecords.sort((a, b) => b.executeDate.localeCompare(a.executeDate))
 
   // 显示/隐藏空状态
   emptyText.style.display = allRecords.length > 0 ? 'none' : 'block'
@@ -874,10 +874,10 @@ async function analyzeAllStocks () {
   // 逐个分析股票
   console.log(`[分析开始] 待分析股票列表: ${symbols.join(', ')}`)
   console.log(`[分析开始] 股票总数: ${symbols.length}`)
-  
+
   let successCount = 0
   let failCount = 0
-  
+
   for (const symbol of symbols) {
     console.log(`[分析进度] 正在分析第 ${symbols.indexOf(symbol) + 1}/${symbols.length}: ${symbol} - ${INDEXES[symbol]}`)
     const result = await analyzeStock(symbol)
@@ -896,7 +896,7 @@ async function analyzeAllStocks () {
     // 每个股票之间稍微延迟，避免请求过快
     await new Promise(resolve => setTimeout(resolve, 500))
   }
-  
+
   console.log(`[分析完成] 成功: ${successCount}, 失败: ${failCount}`)
 
   // 更新股票标签
