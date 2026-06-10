@@ -12,7 +12,7 @@ const INDEX_NAMES = {
   sh562500: '机器人',
   sz159363: '人工智能',
   sh513090: '证券',
-  sh511380: '可转债',
+  sh515020: '银行',
 };
 
 const CORS_HEADERS = {
